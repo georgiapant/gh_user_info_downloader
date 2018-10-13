@@ -45,7 +45,7 @@ def download_user(user_address):
 
 		lg.start_action("Retrieving user statistics ...", 7)
 		user_stats = {}
-		user_stats["repos"] = get_number_of(ghd, user_api_address, "repos", "state=all")
+		user_stats["repos"] = get_number_of(ghd, user_api_address, "repos")
 		lg.step_action()
 		user_stats["followers"] = get_number_of(ghd, user_api_address, "followers")
 		lg.step_action()
