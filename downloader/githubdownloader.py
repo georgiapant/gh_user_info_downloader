@@ -182,3 +182,49 @@ class GithubDownloader:
 				
 				for obj in r_dict["items"]:
 					yield obj
+
+	def download_paginated_object2(self, address, parameters = None, headers = None):
+		"""
+		Downloads a paginated object of the GitHub API.
+
+		:param address: the URL of the GitHub request.
+		:param parameters: the parameters of the GitHub request.
+		:param headers: the headers of the GitHub request. in a string
+		:returns: a generator containing all the pages of the response of the request.
+		"""
+		
+		if parameters:
+			parameters.append("per_page=100")
+		else:
+			parameters = ["per_page=100"]
+		
+		r = self.download_request(address, parameters, headers)
+		
+		if(r.ok):
+			r_dict = json.loads(r.text or r.content)
+			for obj in r_dict:
+				yield obj
+		while True:
+			try:
+				links = {}
+				for link in r.headers['Link'].split(", "):
+					linkaddress, linktype = link.split("; ")
+					linkaddress = linkaddress[1:-1]
+					linktype = linktype.split("\"")[1]
+					links[linktype] = linkaddress
+				if "next" in links:
+					relnext = links["next"]
+					is_relnext = True
+				else:
+					is_relnext = False
+			except (KeyError, ValueError):
+				break
+			if is_relnext:
+				r = self.download_request(relnext, [], headers)
+			else:
+				break
+			if(r.ok):
+				r_dict = json.loads(r.text or r.content)
+				
+				for obj in r_dict:
+					yield obj

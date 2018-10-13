@@ -24,7 +24,7 @@ download_contributors = True
 download_source_code = False
 """
 
-download_user_repos = False #includes the forked ones
+download_user_repos = True #includes the forked ones
 download_commits_authored  = False
 download_commits_committed = False
 download_issues_assigned = False

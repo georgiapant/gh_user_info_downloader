@@ -14,9 +14,7 @@ def get_number_of(gdownloader, user_api_address, statistic_type):
 	#print(r.headers)
 	if "link" in r.headers:
 		address = r.headers["link"].split(',')[1].split('<')[1].split('>')[0]
-		print("get number of address "+ address)
 		data = gdownloader.download_object(address)
-		print("get number of data " + str(len(data)))
 		return 100 * (int(address.split('=')[-1]) - 1) + len(data) if data != None else None		
 	else:
 		data = json.loads(r.text or r.content)
