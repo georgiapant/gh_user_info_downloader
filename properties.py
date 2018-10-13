@@ -24,7 +24,7 @@ download_contributors = True
 download_source_code = False
 """
 
-download_user_repos = False
+download_user_repos = False #includes the forked ones
 download_commits_authored  = False
 download_commits_committed = False
 download_issues_assigned = False
@@ -32,7 +32,7 @@ download_issues_authored = False
 download_issues_mentions = False
 download_issues_commented = False
 download_issues_owened = False
-download_repositories_owned = False #includes the forked ones
+download_repositories_owned = False #doesn't include the forked ones
 
 
 # Select whether the downloaded issues and commits information will be full
