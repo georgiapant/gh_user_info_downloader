@@ -59,7 +59,6 @@ class GithubDownloader:
 				content = json.loads(r.text or r.content)
 				self.set_request_number(content["resources"]["core"]["remaining"], content["resources"]["core"]["reset"])
 				return True
-				print("check_credentials also runs")
 			else:
 				# self.set_request_number("-", "Not connected")
 				return False
@@ -86,7 +85,6 @@ class GithubDownloader:
 				
 				if headers:
 					headers = {headers.split(':')[0].strip() : headers.split(':')[1].strip()}
-					#headers['Accept']='application/vnd.github.cloak-preview'
 				else:
 					headers = {}
 				
