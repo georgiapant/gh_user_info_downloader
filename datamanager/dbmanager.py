@@ -23,7 +23,7 @@ class DBManager(FileManager):
 		"""
 		rootfolder = os.path.join(dataFolderPath, user_name)
 		self.create_folder_if_it_does_not_exist(rootfolder)
-		#self.create_folder_if_it_does_not_exist(os.path.join(rootfolder, "user_repo"))
+		self.create_folder_if_it_does_not_exist(os.path.join(rootfolder, "user_repo"))
 		self.create_folder_if_it_does_not_exist(os.path.join(rootfolder, "commit_authored"))
 		self.create_folder_if_it_does_not_exist(os.path.join(rootfolder, "commit_committed"))
 		self.create_folder_if_it_does_not_exist(os.path.join(rootfolder, "issues_assigned"))
@@ -46,7 +46,7 @@ class DBManager(FileManager):
 		rootfolder = os.path.join(dataFolderPath, user_name)
 		project["user_info"] = self.read_json_from_file_if_it_exists(os.path.join(rootfolder, "user_info.json"))
 		project["user_stats"] = self.read_json_from_file_if_it_exists(os.path.join(rootfolder, "user_stats.json"))
-		#project["user_repo"] = self.read_jsons_from_folder(os.path.join(rootfolder, "user_repo"), "id")
+		project["user_repo"] = self.read_jsons_from_folder(os.path.join(rootfolder, "user_repo"), "id")
 		project["commit_authored"] = self.read_jsons_from_folder(os.path.join(rootfolder, "commit_authored"), "sha")
 		project["commit_committed"] = self.read_jsons_from_folder(os.path.join(rootfolder, "commit_committed"), "sha")
 		project["issues_assigned"] = self.read_jsons_from_folder(os.path.join(rootfolder, "issues_assigned"), "id")
@@ -69,10 +69,10 @@ class DBManager(FileManager):
 			self.write_json_to_file(os.path.join(rootfolder, "use_info.json"), project["user_info"])
 			self.write_json_to_file(os.path.join(rootfolder, "user_stats.json"), project["user_stats"])
 			
-			'''
+
 			for user_repo in project["user_repo"].values():
 				self.write_json_to_file(os.path.join(rootfolder, "user_repo", str(user_repo["id"]) + ".json"), user_repo)
-			'''
+		
 			for commits_authored in project["commit_authored"].values():
 				self.write_json_to_file(os.path.join(rootfolder, "commit_authored", str(commit_authored["sha"]) + ".json"), commit_authored)
 
@@ -130,7 +130,6 @@ class DBManager(FileManager):
 		if always_write_to_disk:
 			rootfolder = os.path.join(dataFolderPath, user_name)
 			self.write_json_to_file(os.path.join(rootfolder, "user_repo", str(user_repo["id"]) + ".json"), user_repo)
-#----------
 
 	def write_project_commit_authored_to_disk(self, user_name, commit_authored):
 		"""

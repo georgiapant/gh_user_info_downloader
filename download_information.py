@@ -9,7 +9,7 @@ from helpers import get_number_of, print_usage, read_file_in_lines, get_total_co
 from properties import GitHubAuthToken, dataFolderPath, gitExecutablePath, verbose, \
 download_commits_authored, download_commits_committed, download_issues_assigned, \
 download_issues_authored, download_issues_mentions, download_issues_commented, \
-download_issues_owened, download_repositories_owned 
+download_issues_owened, download_repositories_owned, download_user_repos 
 
 db = DBManager()
 lg = Logger(verbose)
@@ -162,6 +162,19 @@ def download_information(user_address):
 					db.write_project_repos_owned_to_disk(user_name, repos_owned)
 				lg.step_action()
 			lg.end_action()	
+		
+		if download_user_repos:
+			lg.start_action("Retrieving user repositories...", user_stats["repos"])
+			user_repos_address = user_api_address + "/repos"
+			
+			#for repo in ghd.download_paginated_object(user_repos_address, ["state=all"]):
+
+			for user_repo in ghd.download_paginated_object(user_repos_address):
+				if not project.user_repo_exists(user_repo):
+					project.add_user_repo(user_repo)
+					db.write_project_user_repo_to_disk(user_name, user_repo)
+				lg.step_action()
+			lg.end_action()
 
 	except Exception:
 		# Catch any exception and print it before exiting
