@@ -1,6 +1,6 @@
 import json
 
-def get_number_of(gdownloader, user_api_address, statistic_type, parameter = None):
+def get_number_of(gdownloader, user_api_address, statistic_type):
 	"""
 	Posts a request using an instance of GithubDownloader and returns the number of
 	a given statistic (e.g. number of issues, number of commits, etc.).
@@ -10,11 +10,14 @@ def get_number_of(gdownloader, user_api_address, statistic_type, parameter = Non
 	:param parameter: an optional parameter for the statistic (e.g. for issues set this to "state=all" to get all of them).
 	:returns: the value for the statistic as an absolute number.
 	"""
-	r = gdownloader.download_request(user_api_address + "/" + statistic_type, ["per_page=100"] if parameter == None else ["per_page=100", parameter])
+	r = gdownloader.download_request(user_api_address + "/" + statistic_type)
+	#print(r.headers)
 	if "link" in r.headers:
 		address = r.headers["link"].split(',')[1].split('<')[1].split('>')[0]
+		print("get number of address "+ address)
 		data = gdownloader.download_object(address)
-		return 100 * (int(address.split('=')[-1]) - 1) + len(data) if data != None else None
+		print("get number of data " + str(len(data)))
+		return 100 * (int(address.split('=')[-1]) - 1) + len(data) if data != None else None		
 	else:
 		data = json.loads(r.text or r.content)
 		return len(data)
@@ -39,22 +42,12 @@ def print_usage():
 	print("   github url (e.g. https://github.com/user)")
 	print("   path to txt file containing github urls")
 
-def get_total_count(gdownloader, user_name, statistic_type, parameter=None ):
+def get_total_count(gdownloader, user_name, statistic_type ):
 	'''
 	statistic_type is of the form commits?q=author:
 	'''
 	address = 'https://api.github.com/search/'+ statistic_type+user_name
-	r = gdownloader.download_request(address, ["per_page=100"] if parameter == None else ["per_page=100", parameter])
+	r = gdownloader.download_request(address)
 	r_dict = json.loads(r.text or r.content)
 	return r_dict["total_count"]
-
-	'''
-	if "link" in r.headers:
-		address = r.headers["link"].split(',')[1].split('<')[1].split('>')[0]
-		data = gdownloader.download_object(address)
-		return 100 * (int(address.split('=')[-1]) - 1) + len(data) if data != None else None
-	else:
-		data = json.loads(r.text or r.content)
-		return len(data)
-
-	'''
+	
