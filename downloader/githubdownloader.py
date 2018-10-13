@@ -87,7 +87,7 @@ class GithubDownloader:
 					headers = {headers.split(':')[0].strip() : headers.split(':')[1].strip()}
 				else:
 					headers = {}
-				
+				print(parameters)
 				headers['Accept'] = 'application/vnd.github.cloak-preview'
 				headers['Authorization'] = 'token ' + self.credentials
 				r = requests.get(address + parameters, headers=headers)
@@ -183,9 +183,44 @@ class GithubDownloader:
 				for obj in r_dict["items"]:
 					yield obj
 
+	def download_request2(self, address, parameters = None, headers = None):
+		"""
+		!!! Difference with the download_request() is that in the address we don't include the '?' So it needs to be added in the parameters
+		!!! Can be used in any request that the address doesnt include the parameters from the start
+
+		Implements a download request for the repos.
+
+		:param address: the URL of the request.
+		:param parameters: the parameters of the request.
+		:param headers: the headers of the request.
+		:returns: the response of the request.
+		"""
+		for _ in range(3):
+			try:
+				
+				if parameters:
+					parameters = '?'+ '&'.join(parameters)
+				else:
+					parameters = ""
+				
+				if headers:
+					headers = {headers.split(':')[0].strip() : headers.split(':')[1].strip()}
+				else:
+					headers = {}
+				headers['Accept'] = 'application/vnd.github.cloak-preview'
+				headers['Authorization'] = 'token ' + self.credentials
+				r = requests.get(address + parameters, headers=headers)
+				self.set_request_number(r.headers['x-ratelimit-remaining'], r.headers['x-ratelimit-reset'], "api.github.com/search" in address)
+				return r
+			except TimeoutError:
+				return None
+
 	def download_paginated_object2(self, address, parameters = None, headers = None):
 		"""
-		Downloads a paginated object of the GitHub API.
+		!!! Difference with the download_paginated_object() is that the data to be yielded are not in the data["items"].
+		!!! can be used for any json object that needs all its objects yielded.
+
+		Downloads a paginated object of the GitHub API. for the repos.
 
 		:param address: the URL of the GitHub request.
 		:param parameters: the parameters of the GitHub request.
@@ -198,11 +233,9 @@ class GithubDownloader:
 		else:
 			parameters = ["per_page=100"]
 		
-		r = self.download_request(address, parameters, headers)
-		
+		r = self.download_request2(address, parameters, headers)
 		if(r.ok):
-			r_dict = json.loads(r.text or r.content)
-			for obj in r_dict:
+			for obj in json.loads(r.text or r.content):
 				yield obj
 		while True:
 			try:
@@ -224,7 +257,5 @@ class GithubDownloader:
 			else:
 				break
 			if(r.ok):
-				r_dict = json.loads(r.text or r.content)
-				
-				for obj in r_dict:
+				for obj in json.loads(r.text or r.content):
 					yield obj

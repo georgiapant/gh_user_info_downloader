@@ -166,10 +166,11 @@ def download_information(user_address):
 		if download_user_repos:
 			lg.start_action("Retrieving user repositories...", user_stats["repos"])
 			user_repos_address = user_api_address + "/repos"
+			print(user_repos_address)
 			
 			#for repo in ghd.download_paginated_object(user_repos_address, ["state=all"]):
 
-			for user_repo in ghd.download_paginated_object2(user_repos_address):
+			for user_repo in ghd.download_paginated_object2(user_repos_address, ["state=all"]):
 				if not project.user_repo_exists(user_repo):
 					project.add_user_repo(user_repo)
 					db.write_project_user_repo_to_disk(user_name, user_repo)
