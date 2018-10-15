@@ -5,7 +5,9 @@ import json
  
 #commit_committed
 class List_of_repos_urls(FileManager):
-    #fm= FileManager()
+    '''
+    This class returns a list with the repositories that the user has contributed into
+    '''
 
     def list_of_repos_urls_from_committs(self, dataFolderPath, user_name):
         
@@ -14,12 +16,12 @@ class List_of_repos_urls(FileManager):
 
         list_url = []
         
-        for element_id,values in commit_authored.items():
+        for element_id in commit_authored.keys():
             url = commit_authored[element_id]["repository"]["html_url"]
             if url not in list_url:
                 list_url.append(url)
         
-        for element_id,values in commit_committed.items():
+        for element_id in commit_committed.keys():
             url = commit_committed[element_id]["repository"]["html_url"]
             if url not in list_url:
                 list_url.append(url)
@@ -35,32 +37,32 @@ class List_of_repos_urls(FileManager):
 
         list_url = []
 
-        for element_id,values in issues_assigned.items():
+        for element_id in issues_assigned.keys():
             
             api_url = issues_assigned[element_id]["repository_url"]
             url = "https://github.com/" + '/'.join(api_url.split('/')[-2:])
             if url not in list_url:
                 list_url.append(url)
 
-        for element_id,values in issues_authored.items():
+        for element_id in issues_authored.keys():
             api_url = issues_authored[element_id]["repository_url"]
             url = "https://github.com/" + '/'.join(api_url.split('/')[-2:])
             if url not in list_url:
                 list_url.append(url)
 
-        for element_id,values in issues_commented.items():
+        for element_id in issues_commented.keys():
             api_url = issues_commented[element_id]["repository_url"]
             url = "https://github.com/" + '/'.join(api_url.split('/')[-2:])
             if url not in list_url:
                 list_url.append(url)
 
-        for element_id,values in issues_mentions.items():
+        for element_id in issues_mentions.keys():
             api_url = issues_mentions[element_id]["repository_url"]
             url = "https://github.com/" + '/'.join(api_url.split('/')[-2:])
             if url not in list_url:
                 list_url.append(url)
 
-        for element_id,values in issues_owned.items():
+        for element_id in issues_owned.keys():
             api_url = issues_owned[element_id]["repository_url"]
             url = "https://github.com/" + '/'.join(api_url.split('/')[-2:])
             if url not in list_url:
@@ -73,12 +75,12 @@ class List_of_repos_urls(FileManager):
         repos_owned_wforked = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/user_repo", "id")
 
         list_url = []
-        for element_id,values in repos_owned.items():
+        for element_id in repos_owned.keys():
                 url = repos_owned[element_id]["html_url"]
                 if url not in list_url:
                     list_url.append(url)
 
-        for element_id,values in repos_owned_wforked.items():
+        for element_id, in repos_owned_wforked.keys():
                 url = repos_owned_wforked[element_id]["html_url"]
                 if url not in list_url:
                     list_url.append(url)
@@ -93,6 +95,3 @@ class List_of_repos_urls(FileManager):
                 final_list.append(element)
 
         return final_list
-
-
-
