@@ -1,6 +1,5 @@
 
 from datamanager.filemanager import FileManager
-from properties import GitHubAuthToken, dataFolderPath, gitExecutablePath, verbose
 import json
  
 #commit_committed
