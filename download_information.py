@@ -1,6 +1,8 @@
 import os
 import sys
 import traceback
+import requests
+import json
 from logger.downloadlogger import Logger
 from datamanager.dbmanager import DBManager
 from downloader.gitdownloader import GitDownloader
@@ -9,7 +11,10 @@ from helpers import get_number_of, print_usage, read_file_in_lines, get_total_co
 from properties import GitHubAuthToken, dataFolderPath, gitExecutablePath, verbose, \
 download_commits_authored, download_commits_committed, download_issues_assigned, \
 download_issues_authored, download_issues_mentions, download_issues_commented, \
-download_issues_owened, download_repositories_owned, download_user_repos 
+download_issues_owened, download_repositories_owned, download_user_repos, download_issues_owened_full, \
+download_issues_commented_full, download_issues_mentions_full, download_issues_authored_full, \
+download_issues_assigned_full, download_commits_committed_full, download_commits_authored_full 
+
 
 db = DBManager()
 lg = Logger(verbose)
@@ -70,6 +75,7 @@ def download_information(user_address):
 		lg.step_action()
 		user_stats["repositories_owned"] = get_total_count(ghd, user_name, 'repositories?q=user:') #doesn't include the forked ones
 		lg.step_action()	
+		
 		project.add_user_stats(user_stats)
 		lg.end_action()
 		db.write_project_user_stats_to_disk(user_name, project["user_stats"])
@@ -78,8 +84,10 @@ def download_information(user_address):
 		if download_commits_authored:
 			lg.start_action("Retrieving committs authored by user...", user_stats["commit_authored"])
 			committs_authored_by_user_address = "https://api.github.com/search/commits?q=author:" + user_name
-
 			for commit_authored in ghd.download_paginated_object(committs_authored_by_user_address):
+				if download_commits_authored_full:
+					r = ghd.download_request(commit_authored["url"])
+					commit_authored = json.loads(r.text)				
 				if not project.commit_authored_exists(commit_authored):
 					project.add_commit_authored(commit_authored)
 					db.write_project_commit_authored_to_disk(user_name, commit_authored)
@@ -91,6 +99,9 @@ def download_information(user_address):
 			committs_committed_by_user_address = "https://api.github.com/search/commits?q=committer:" + user_name
 
 			for commit_committed in ghd.download_paginated_object(committs_committed_by_user_address):
+				if download_commits_committed_full:
+					r = ghd.download_request(commit_committed["url"])
+					commit_committed = json.loads(r.text)
 				if not project.commit_committed_exists(commit_committed):
 					project.add_commit_committed(commit_committed)
 					db.write_project_commit_committed_to_disk(user_name, commit_committed)
@@ -102,6 +113,9 @@ def download_information(user_address):
 			issues_assigned_to_user_address = "https://api.github.com/search/issues?q=assignee:" + user_name
 
 			for issue_assigned in ghd.download_paginated_object(issues_assigned_to_user_address):
+				if download_issues_assigned_full:
+					r = ghd.download_request(issue_assigned["url"])
+					issue_assigned = json.loads(r.text)
 				if not project.issue_assigned_exists(issue_assigned):
 					project.add_issue_assigned(issue_assigned)
 					db.write_project_issue_assigned_to_disk(user_name, issue_assigned)
@@ -113,6 +127,9 @@ def download_information(user_address):
 			issues_authored_from_user_address = "https://api.github.com/search/issues?q=author:" + user_name
 
 			for issue_authored in ghd.download_paginated_object(issues_authored_from_user_address):
+				if download_issues_authored_full:
+					r = ghd.download_request(issue_authored["url"])
+					issue_authored = json.loads(r.text)
 				if not project.issue_authored_exists(issue_authored):
 					project.add_issue_authored(issue_authored)
 					db.write_project_issue_authored_to_disk(user_name, issue_authored)
@@ -124,6 +141,9 @@ def download_information(user_address):
 			issues_mentions_user_address = "https://api.github.com/search/issues?q=mentions:" + user_name
 
 			for issue_mentions in ghd.download_paginated_object(issues_mentions_user_address):
+				if download_issues_mentions_full:
+					r = ghd.download_request(issue_mentions["url"])
+					issue_mentions = json.loads(r.text)
 				if not project.issue_mentions_exists(issue_mentions):
 					project.add_issue_mentions(issue_mentions)
 					db.write_project_issue_mentions_to_disk(user_name, issue_mentions)
@@ -135,6 +155,9 @@ def download_information(user_address):
 			issues_commented_by_user_address = "https://api.github.com/search/issues?q=commenter:" + user_name
 
 			for issues_commented in ghd.download_paginated_object(issues_commented_by_user_address):
+				if download_issues_commented_full:
+					r = ghd.download_request(issues_commented["url"])
+					issues_commented = json.loads(r.text)
 				if not project.issue_commented_exists(issues_commented):
 					project.add_issue_commented(issues_commented)
 					db.write_project_issue_commented_to_disk(user_name, issues_commented)
@@ -146,6 +169,9 @@ def download_information(user_address):
 			issues_owned_by_user_address = "https://api.github.com/search/issues?q=user:" + user_name
 
 			for issues_owned in ghd.download_paginated_object(issues_owned_by_user_address):
+				if download_issues_owened_full:
+					r = ghd.download_request(issues_owned["url"])
+					issues_owned = json.loads(r.text)
 				if not project.issue_owned_exists(issues_owned):
 					project.add_issue_owned(issues_owned)
 					db.write_project_issue_owned_to_disk(user_name, issues_owned)

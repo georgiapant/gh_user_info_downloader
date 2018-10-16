@@ -24,12 +24,12 @@ download_contributors = True
 download_source_code = False
 """
 
-download_user_repos = True #includes the forked ones
+download_user_repos = False #includes the forked ones
 download_commits_authored  = False
 download_commits_committed = False
 download_issues_assigned = False
 download_issues_authored = False
-download_issues_mentions = False
+download_issues_mentions = True
 download_issues_commented = False
 download_issues_owened = False
 download_repositories_owned = False #doesn't include the forked ones
@@ -40,3 +40,13 @@ download_repositories_owned = False #doesn't include the forked ones
 download_issues_full = True
 download_commits_full = True
 """
+download_issues_owened_full = True
+download_issues_commented_full = True
+download_issues_mentions_full = True
+download_issues_authored_full = True
+download_issues_assigned_full = True
+download_commits_committed_full = True
+download_commits_authored_full = True
+
+
+

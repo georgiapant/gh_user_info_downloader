@@ -87,7 +87,6 @@ class GithubDownloader:
 					headers = {headers.split(':')[0].strip() : headers.split(':')[1].strip()}
 				else:
 					headers = {}
-				print(parameters)
 				headers['Accept'] = 'application/vnd.github.cloak-preview'
 				headers['Authorization'] = 'token ' + self.credentials
 				r = requests.get(address + parameters, headers=headers)
