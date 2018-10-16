@@ -80,7 +80,7 @@ class List_of_repos_urls(FileManager):
                 if url not in list_url:
                     list_url.append(url)
 
-        for element_id, in repos_owned_wforked.keys():
+        for element_id in repos_owned_wforked.keys():
                 url = repos_owned_wforked[element_id]["html_url"]
                 if url not in list_url:
                     list_url.append(url)
