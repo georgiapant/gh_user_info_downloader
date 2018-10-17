@@ -6,6 +6,8 @@ import json
 class List_of_repos_urls(FileManager):
     '''
     This class returns a list with the repositories that the user has contributed into
+    In order to be able to get a result you need to have downloaded commits_authored and commits_committed full
+    
     '''
 
     def list_of_repos_urls_from_committs(self, dataFolderPath, user_name):
@@ -16,12 +18,12 @@ class List_of_repos_urls(FileManager):
         list_url = []
         
         for element_id in commit_authored.keys():
-            url = commit_authored[element_id]["repository"]["html_url"]
+            url = '/'.join(commit_authored[element_id]["html_url"].split('/')[:-2])
             if url not in list_url:
                 list_url.append(url)
         
         for element_id in commit_committed.keys():
-            url = commit_committed[element_id]["repository"]["html_url"]
+            url = '/'.join(commit_authored[element_id]["html_url"].split('/')[:-2])
             if url not in list_url:
                 list_url.append(url)
         
