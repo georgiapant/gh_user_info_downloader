@@ -1,4 +1,7 @@
 
+import sys
+from properties import (dataFolderPath,  packageFolderPath)
+sys.path.insert(0, packageFolderPath) 
 from datamanager.filemanager import FileManager
 import json
  

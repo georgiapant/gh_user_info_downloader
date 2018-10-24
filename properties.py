@@ -1,6 +1,10 @@
 
 # Set this to folder where data are downloaded
 dataFolderPath = '/Users/georgia/Desktop'
+
+# Set this to folder where the package is stored 
+packageFolderPath = '/Users/georgia/Desktop/folder'
+
 # Set this to your GitHub auth token
 GitHubAuthToken = 'ae38ec3b1f1efe31eae0d2b9ef34c6912febd6fa'
 

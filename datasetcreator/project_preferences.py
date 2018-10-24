@@ -1,3 +1,6 @@
+import sys
+from properties import (dataFolderPath,  packageFolderPath)
+sys.path.insert(0, packageFolderPath) 
 import json
 from datamanager.filemanager import FileManager
 from downloader.githubdownloader import GithubDownloader
