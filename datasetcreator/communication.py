@@ -6,7 +6,7 @@ from downloader.githubdownloader import GithubDownloader
 import json
 import datetime
 import requests
-from dateutil.relativedelta import relativedelta
+
 
 '''
 Left to do two functions and retest the comment_reactions()

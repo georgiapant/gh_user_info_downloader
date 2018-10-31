@@ -128,7 +128,7 @@ def response_time_to_comments_mentioned(dataFolderPath, user_name):
                                 if response_time == datetime.datetime.strptime(dict_time[issue_id][item]["response_time"],'%Y-%m-%d %H:%M:%S'):
                                     break
                                 else:
-                                    a = relativedelta( response_time,mention_time).months, relativedelta(response_time, mention_time).days, \
+                                    a = relativedelta( response_time,mention_time).months, relativedelta(response_time, mention_time).days, relativedelta(response_time, mention_time).hours, \
                                     relativedelta(response_time, mention_time).minutes, relativedelta(response_time, mention_time).seconds
                                     dict_time[issue_id][comment_id]["mention_time"] = str(mention_time)
                                     dict_time[issue_id][comment_id]["response_time"] = str(response_time)
@@ -136,7 +136,7 @@ def response_time_to_comments_mentioned(dataFolderPath, user_name):
                                    
         
                             except:
-                                a = relativedelta( response_time,mention_time).months, relativedelta(response_time, mention_time).days, \
+                                a = relativedelta( response_time,mention_time).months, relativedelta(response_time, mention_time).days, relativedelta(response_time, mention_time).hours,\
                                 relativedelta(response_time, mention_time).minutes, relativedelta(response_time, mention_time).seconds
                                 
                                 dict_time[issue_id][comment_id]["mention_time"] = str(mention_time)
