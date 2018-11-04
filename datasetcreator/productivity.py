@@ -349,9 +349,10 @@ class Productivity(FileManager,GithubDownloader):
                 projects_per_day[date[0]]["project_list"].append(project)
         return  projects_per_day
 
-#test = projects_per_day(dataFolderPath,user_name)
 
-#fm.write_json_to_file(dataFolderPath + "/" + user_name +"/projects_per_day_new.json", test) 
+#test = pr.projects_per_day(dataFolderPath,user_name)
+
+#fm.write_json_to_file(dataFolderPath + "/" + user_name +"/all_data/projects_per_day_new.json", test) 
 #test1 = pull_merge_diff(dataFolderPath,user_name)[1]
 #fm.write_json_to_file(dataFolderPath + "/" + user_name +"/pull_requests.json", test1) 
 #print(test) 

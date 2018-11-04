@@ -1,5 +1,5 @@
 import sys
-from properties import ( GitHubAuthToken, dataFolderPath,  packageFolderPath)
+from properties import (GitHubAuthToken, dataFolderPath,  packageFolderPath)
 sys.path.insert(0, packageFolderPath) #should be something universal, add to properties
 from datamanager.filemanager import FileManager
 from downloader.githubdownloader import GithubDownloader
@@ -211,19 +211,26 @@ class Communication (FileManager):
             reactions_detailed[item]=r_dict
         
         for item in list_url:
-            r = r = requests.get(url, headers=headers)
+            r = requests.get(url, headers=headers)
             ghd.set_request_number(r.headers['x-ratelimit-remaining'], r.headers['x-ratelimit-reset'])
             r_dict = json.loads(r.text)
-            reactions_count[item] = {}
-            reactions_count[item] = r_dict["reactions"]
+            print(r_dict)
+            try:
+                reactions_count[item] = {}
+                reactions_count[item] = r_dict["reactions"]
+            except:
+                continue
         
         return reactions_detailed, reactions_count
+'''
 
-
-#test = self.omment_length(dataFolderPath,user_name)
-#fm..write_json_to_file(dataFolderPath + "/" + user_name +"/comment_length.json", test) 
+user_name = 'nbriz'
+cm = Communication()
+fm = FileManager()
+test = cm.comment_reactions(dataFolderPath,user_name)
+fm.write_json_to_file(dataFolderPath + "/" + user_name +"/comment_reactions.json", test) 
 #fm.write_json_to_file(dataFolderPath + "/" + user_name +"/commit_Comments_URL_list.json", list_url) 
-
+'''
 
 
 

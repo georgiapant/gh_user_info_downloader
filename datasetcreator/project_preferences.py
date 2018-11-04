@@ -5,7 +5,7 @@ import json
 from datamanager.filemanager import FileManager
 from downloader.githubdownloader import GithubDownloader
 from helpers import get_number_of
-from list_of_repos_urls import List_of_repos_urls
+from datasetcreator.list_of_repos_urls import List_of_repos_urls
 from properties import (GitHubAuthToken, dataFolderPath, gitExecutablePath,verbose)
 
 
