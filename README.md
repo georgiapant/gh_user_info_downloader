@@ -10,18 +10,18 @@ The tool to download data for a desired user. The data that can be downloaded ar
 - download_repositories_owned #doesn't include the forked ones
 
 Along with a file with information about the user and another one with the statistics of the user. The statistics included are:
-- # of commits authored by the user
-- # of commits committed by the user
-- # of events 
-- # of followers the user has
-- # of users the user is following
-- # of issues that are assigned to the user
-- # of issues authored by the user
-- # of issues commented by the user
-- # of issues that mention the user
-- # of issues that are owned by the user
-- # of organisations the user belongs
-- # of events the user received
-- # of repos the user has, with the forked ones
-- # of repositories the user owns without the forked ones
-- # of starred repositories
+- number of commits authored by the user
+- number of commits committed by the user
+- number of events 
+- number of followers the user has
+- number of users the user is following
+- number of issues that are assigned to the user
+- number of issues authored by the user
+- number of issues commented by the user
+- number of issues that mention the user
+- number of issues that are owned by the user
+- number of organisations the user belongs
+- number of events the user received
+- number of repos the user has, with the forked ones
+- number of repositories the user owns without the forked ones
+- number of starred repositories
