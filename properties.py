@@ -13,13 +13,11 @@ GitHubAuthToken = PathGitHubAuthToken
 # Set this to the path of the git executable
 gitExecutablePath = PathGitExecutablePath
 
-print(gitExecutablePath)
 # Set to 0 for no messages, 1 for simple messages, and 2 for progress bars
 verbose = 1
 
 # Select how to write to disk
 always_write_to_disk = True
-
 
 
 download_user_repos = False #includes the forked ones
