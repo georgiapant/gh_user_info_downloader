@@ -1,16 +1,19 @@
 
+from paths import PathDataFolderPath, PathPackageFolderPath , PathGitHubAuthToken, PathGitExecutablePath
+
 # Set this to folder where data are downloaded
-dataFolderPath = 'dataFolderPath'
+dataFolderPath = PathDataFolderPath
 
 # Set this to folder where the package is stored 
-packageFolderPath = 'packageFolderPath'
+packageFolderPath = PathPackageFolderPath
 
 # Set this to your GitHub auth token
-GitHubAuthToken = 'token' 
+GitHubAuthToken = PathGitHubAuthToken
 
 # Set this to the path of the git executable
-gitExecutablePath = 'gitExecutablePath'
+gitExecutablePath = PathGitExecutablePath
 
+print(gitExecutablePath)
 # Set to 0 for no messages, 1 for simple messages, and 2 for progress bars
 verbose = 1
 
