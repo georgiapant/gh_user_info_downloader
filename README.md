@@ -34,31 +34,31 @@
 
 This folder contains functions that can download raw data about the user. The different data that can be dowloaded are:
 - about the activeness of the user
-⋅⋅* The time the user is active in years, months, days.
+    * The time the user is active in years, months, days.
 - About the communication skills of the user
-⋅⋅* All the comments he made in all issues and committs
-⋅⋅* The length of the comments
-⋅⋅* The number of comment answers
-⋅⋅* The reactions of the comments (both detailed and just the count)
+    * All the comments he made in all issues and committs
+    * The length of the comments
+    * The number of comment answers
+    * The reactions of the comments (both detailed and just the count)
 - Languages
-⋅⋅* The amount of files committed in each programming language
+    * The amount of files committed in each programming language
 - List of URLs of the repos the user has contributed. Its all repos that the user has committed an issue, a committ or he owns.
 - Project management
-⋅⋅* Amount of bugs assigned by the user and the list of the issue ids of those bugs
-⋅⋅* Time difference between the assignement of the bug and its closure (in amount of months, days, minutes and seconds) and the amount of not closed bugs
-⋅⋅* Amount of labels assigned in issues
-⋅⋅* Amount of milestones assigned in total and amount assigned by the user
-⋅⋅* Amount of comments that contain keywords related to project and the total count of comments
+    * Amount of bugs assigned by the user and the list of the issue ids of those bugs
+    * Time difference between the assignement of the bug and its closure (in amount of months, days, minutes and seconds) and the amount of not closed bugs
+    * Amount of labels assigned in issues
+    * Amount of milestones assigned in total and amount assigned by the user
+    * Amount of comments that contain keywords related to project and the total count of comments
 - Productivity of the user
-⋅⋅* when he mostly works (days of the week) 
-⋅⋅* Frequency of activities (committs/day - issues/day)
-⋅⋅* Time between creation and closure of an issue by the user (both) 
-⋅⋅* Time between the assignment of an issue to the user and the closure of the issue 
-⋅⋅* Time between two committs of the same developer
-⋅⋅* Time between pull request and merge 
-⋅⋅* Deploy rate 
-⋅⋅* Number of projects per day 
-⋅⋅* Duration a repository is active
+    * when he mostly works (days of the week) 
+    * Frequency of activities (committs/day - issues/day)
+    * Time between creation and closure of an issue by the user (both) 
+    * Time between the assignment of an issue to the user and the closure of the issue 
+    * Time between two committs of the same developer
+    * Time between pull request and merge 
+    * Deploy rate 
+    * Number of projects per day 
+    * Duration a repository is active
 - Project preference
-⋅⋅* Project popularity stats (amount of subscribers, stargazers and forks of the repo)
-⋅⋅* Project scale stats (amount of committs, releases and contributors of the repo)
+    * Project popularity stats (amount of subscribers, stargazers and forks of the repo)
+    * Project scale stats (amount of committs, releases and contributors of the repo)
