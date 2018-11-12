@@ -15,6 +15,10 @@ from datasetcreator.response_time import response_time_to_comments_mentioned
 #user_api_address = "https://api.github.com/users/" + '/'.join(user_address.split('/')[-1:])
 user_name='nbriz'
 
+'''
+This is a file to run to gather a first example of all possible raw data that can be dowloaded
+'''
+
 lr_url = List_of_repos_urls()
 productivity = Productivity(GitHubAuthToken)
 fm = FileManager()

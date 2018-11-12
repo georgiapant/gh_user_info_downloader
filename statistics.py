@@ -17,7 +17,7 @@ import codecs
 import sys
 import traceback
 '''
-The final code that will be executable to create the dataset
+The final code that will be executable to gather the final statistics to create the dataset
 '''
 
 ghd = GithubDownloader(GitHubAuthToken)

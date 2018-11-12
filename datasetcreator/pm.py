@@ -7,6 +7,7 @@ from dateutil.relativedelta import relativedelta
 from datamanager.filemanager import FileManager
 from datasetcreator.communication import Communication
 from downloader.githubdownloader import GithubDownloader
+from datasetcreator.list_of_repos_urls import List_of_repos_urls
 
 '''
 Issues authored by >> assignees not NULL & (in name keyword referring to bug OR label referring to bug)
@@ -114,9 +115,35 @@ class Project_management(FileManager):
 
 
         return comments_project, total_comments
+'''
+Method that aims to count the amount of merges done by the user
 
+def amount_of_merges(dataFolderPath, user_name):
+    ghd = GithubDownloader(GitHubAuthToken)
+    ls = List_of_repos_urls()
+    list_url = ls.get_list_of_repos_urls(dataFolderPath,user_name)
+    headers = {}
+    pull_merged = 0
+    headers["Accept"]="application/vnd.github.symmetra-preview+json"
+    headers['Authorization'] = 'token ' + GitHubAuthToken
+    parameters = "?state=all"
 
+    for item in list_url:
+        url = "https://api.github.com/repos" +"/"+ '/'.join(item.split('/')[-2:])+"/merges"
+        r = requests.get(url+parameters, headers=headers)
+        ghd.set_request_number(r.headers['x-ratelimit-remaining'], r.headers['x-ratelimit-reset'])
+        r_dict = json.loads(r.text)
+        
+        if bool(r_dict):
+            break
+    return r_dict
 
-#test = project_comments(dataFolderPath,user_name)
-#fm.write_json_to_file(dataFolderPath + "/" + user_name +"/bug_resolve_time.json", test) 
+import requests
+user_name = 'nbriz'
+
+fm = FileManager()
+
+test = amount_of_merges(dataFolderPath,user_name)
+fm.write_json_to_file(dataFolderPath + "/" + user_name +"/amount_of_merges.json", test) 
 #print(test) 
+'''

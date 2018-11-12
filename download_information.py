@@ -22,6 +22,11 @@ ghd = GithubDownloader(GitHubAuthToken)
 gd = GitDownloader(gitExecutablePath, lg)
 
 def download_information(user_address):
+	'''
+	Downloads all the data of a user given its GitHub URL.
+
+	:param user_address: the URL of the user of which the data are downloaded.
+	'''
 
 	user_api_address = "https://api.github.com/users/" + '/'.join(user_address.split('/')[-1:])
 	user_name = '_'.join(user_address.split('/')[-1:])
