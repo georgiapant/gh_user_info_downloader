@@ -1,5 +1,5 @@
 
-##Download_information function
+## Download_information function
 
 - With this function can download data for a desired user. The data that can be downloaded are:
 
@@ -30,7 +30,7 @@
     * number of repositories the user owns without the forked ones
     * number of starred repositories
 
-##datasetcreator folder
+## datasetcreator folder
 
 This folder contains functions that can download raw data about the user. The different data that can be dowloaded are:
 - about the activeness of the user
