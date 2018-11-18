@@ -10,8 +10,7 @@ from downloader.githubdownloader import GithubDownloader
 from datasetcreator.list_of_repos_urls import List_of_repos_urls
 
 '''
-Issues authored by >> assignees not NULL & (in name keyword referring to bug OR label referring to bug)
-increase count by 1?
+Class that includes functions that are related to project management skills
 '''
 
 class Project_management(FileManager):
@@ -23,8 +22,10 @@ class Project_management(FileManager):
         "KPI", "effort", "impact", "XP", "goal setting", "goal" , "HR"]
         bug_words = ["bug", "error","defect","debug", "faulty", "problem", "trial", "try", "tried","solve", "solution", "fix", "fixed", "issue", \
         "wrong", "mistake", "issues"]
+        test_words = ["test", "defect", "test case", "testing", "debugging", "expected result", "fat", "fault injection", "maintenance"\
+        "quality", "QA", "quality assurance", "re-testing", "risk", "scenario", "tpi"]
 
-        return project_words, bug_words
+        return project_words, bug_words, test_words
 
     def bug_assigned(self, dataFolderPath, user_name):
         issues_authored = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_authored", "id")

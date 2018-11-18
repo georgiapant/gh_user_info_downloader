@@ -121,6 +121,10 @@ class Productivity(FileManager,GithubDownloader):
         return activities_freq
 
     def create_close_issue_diff(self,dataFolderPath,user_name):
+        '''
+        Time difference between the creation of an issue by the user and its closure. 
+        This function also returns the amount of still open issues and the amount of issues closed by another user
+        '''
         issues_authored = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_authored", "id")
         created_closed_diff = []
         create_close = {}
