@@ -7,19 +7,22 @@ from logger.downloadlogger import Logger
 from datamanager.dbmanager import DBManager
 from downloader.gitdownloader import GitDownloader
 from downloader.githubdownloader import GithubDownloader
+from datamanager.filemanager import FileManager
 from helpers import get_number_of, print_usage, read_file_in_lines, get_total_count
 from properties import GitHubAuthToken, dataFolderPath, gitExecutablePath, verbose, \
 download_commits_authored, download_commits_committed, download_issues_assigned, \
 download_issues_authored, download_issues_mentions, download_issues_commented, \
 download_issues_owened, download_repositories_owned, download_user_repos, download_issues_owened_full, \
 download_issues_commented_full, download_issues_mentions_full, download_issues_authored_full, \
-download_issues_assigned_full, download_commits_committed_full, download_commits_authored_full 
+download_issues_assigned_full, download_commits_committed_full, download_commits_authored_full, download_issue_comments, \
+download_commit_comments 
 
 
 db = DBManager()
 lg = Logger(verbose)
 ghd = GithubDownloader(GitHubAuthToken)
 gd = GitDownloader(gitExecutablePath, lg)
+fm = FileManager()
 
 def download_information(user_address):
 	'''
@@ -197,7 +200,7 @@ def download_information(user_address):
 		if download_user_repos:
 			lg.start_action("Retrieving user repositories...", user_stats["repos"])
 			user_repos_address = user_api_address + "/repos"
-			print(user_repos_address)
+			#print(user_repos_address)
 			
 			#for repo in ghd.download_paginated_object(user_repos_address, ["state=all"]):
 
@@ -207,6 +210,42 @@ def download_information(user_address):
 					db.write_project_user_repo_to_disk(user_name, user_repo)
 				lg.step_action()
 			lg.end_action()
+
+# All Issues can be downloaded only iff all commits and issues have been downloaded in advance
+		
+		if download_issue_comments:
+    
+			issues_commented = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_commented", "id")
+			for element_id in issues_commented.keys():
+				fm.create_folder_if_it_does_not_exist(dataFolderPath + "/" + user_name + "/issue_comments" + "/" + str(element_id))
+				all_comments_url = issues_commented[element_id]["comments_url"]        
+				for comment in ghd.download_paginated_object2(all_comments_url):            
+					db.write_project_issue_comments_to_disk(user_name, comment, element_id)
+
+		if download_commit_comments:
+			commit_authored=fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_authored","sha")
+			commit_committed = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_committed","sha")
+			commit_sha_list = []
+
+			for commit_sha in commit_authored.keys():
+				commit_sha_list.append(commit_sha)
+				if commit_authored[commit_sha]["commit"]["comment_count"]>0:
+					fm.create_folder_if_it_does_not_exist(dataFolderPath + "/" + user_name + "/commit_comments" + "/" + str(commit_sha))
+					all_comments_url = commit_authored[commit_sha]["comments_url"]       
+					for comment in ghd.download_paginated_object2(all_comments_url):            
+						db.write_project_commit_comments_to_disk(user_name, comment, commit_sha)
+
+			for commit_sha in commit_committed.keys():
+				if commit_sha not in commit_sha_list and commit_committed[commit_sha]["commit"]["comment_count"]>0:
+					fm.create_folder_if_it_does_not_exist(dataFolderPath + "/" + user_name + "/commit_comments" + "/" + str(commit_sha))
+					all_comments_url = commit_authored[commit_sha]["comments_url"]       
+					for comment in ghd.download_paginated_object2(all_comments_url):            
+						db.write_project_commit_comments_to_disk(user_name, comment, commit_sha)            
+
+
+		
+
+
 
 	except Exception:
 		# Catch any exception and print it before exiting

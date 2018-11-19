@@ -32,6 +32,8 @@ class DBManager(FileManager):
 		self.create_folder_if_it_does_not_exist(os.path.join(rootfolder, "issues_commented"))
 		self.create_folder_if_it_does_not_exist(os.path.join(rootfolder, "issues_owned"))
 		self.create_folder_if_it_does_not_exist(os.path.join(rootfolder, "repositories_owned"))
+		self.create_folder_if_it_does_not_exist(os.path.join(rootfolder, "issue_comments"))
+		self.create_folder_if_it_does_not_exist(os.path.join(rootfolder, "commit_comments"))
 
 
 	def read_project_from_disk(self, user_name):
@@ -55,6 +57,7 @@ class DBManager(FileManager):
 		project["issues_commented"] = self.read_jsons_from_folder(os.path.join(rootfolder, "issues_commented"), "id")
 		project["issues_owned"] = self.read_jsons_from_folder(os.path.join(rootfolder, "issues_owned"), "id")
 		project["repositories_owned"] = self.read_jsons_from_folder(os.path.join(rootfolder, "repositories_owned"), "id")
+		#project["comments"] = self.read_jsons_from_folder(os.path.join(rootfolder, "comments"), "id")
 		return project
 
 	def finalize_write_to_disk(self, user_name, project):
@@ -73,10 +76,10 @@ class DBManager(FileManager):
 			for user_repo in project["user_repo"].values():
 				self.write_json_to_file(os.path.join(rootfolder, "user_repo", str(user_repo["id"]) + ".json"), user_repo)
 		
-			for commits_authored in project["commit_authored"].values():
+			for commit_authored in project["commit_authored"].values():
 				self.write_json_to_file(os.path.join(rootfolder, "commit_authored", str(commit_authored["sha"]) + ".json"), commit_authored)
 
-			for commits_committed in project["commit_committed"].values():
+			for commit_committed in project["commit_committed"].values():
 				self.write_json_to_file(os.path.join(rootfolder, "commit_committed", str(commit_committed["sha"]) + ".json"), commit_committed)
 			
 			for issues_assigned in project["issues_assigned"].values():
@@ -85,7 +88,7 @@ class DBManager(FileManager):
 			for issues_authored in project["issues_authored"].values():
 				self.write_json_to_file(os.path.join(rootfolder, "issues_authored", str(issues_authored["id"]) + ".json"), issues_authored)
 			
-			for issues_mentioned in project["issues_mentions"].values():
+			for issues_mentions in project["issues_mentions"].values():
 				self.write_json_to_file(os.path.join(rootfolder, "issues_mentions", str(issues_mentions["id"]) + ".json"), issues_mentions)
 			
 			for issues_commented in project["issues_commented"].values():
@@ -96,7 +99,10 @@ class DBManager(FileManager):
 			
 			for repositories_owned in project["repositories_owned"].values():
 				self.write_json_to_file(os.path.join(rootfolder, "repositories_owned", str(repositories_owned["id"]) + ".json"), repositories_owned)
-
+			'''
+			for comments in project["comments"].values():
+				self.write_json_to_file(os.path.join(rootfolder, "comments", str(comments["id"]) + ".json"), comments)
+			'''
 
 	def write_project_user_info_to_disk(self, user_name, user_info):
 		"""
@@ -223,7 +229,35 @@ class DBManager(FileManager):
 			if always_write_to_disk:
 				rootfolder = os.path.join(dataFolderPath, user_name)
 				self.write_json_to_file(os.path.join(rootfolder, "repositories_owned", str(repositories_owned["id"]) + ".json"), repositories_owned)
+	
+	def write_project_issue_comments_to_disk(self, user_name, comments, sub_folder):
+			"""
+			Writes an issue of a repository to disk.
 
+			:param repo_name: the user name.
+			:param issue: the issue to be written to disk.
+			"""
+			if always_write_to_disk:
+				rootfolder = os.path.join(dataFolderPath, user_name)
+				self.write_json_to_file(os.path.join(rootfolder, "issue_comments", str(sub_folder), str(comments["id"]) + ".json"), comments)
+	
+	'''
+	def read_project_comments_from_disk(self, user_name, sub_folder):
+		project = Project()
+		rootfolder = os.path.join(dataFolderPath, user_name)
+		project["comments"] = self.read_jsons_from_folder(os.path.join(rootfolder, "comments", str(sub_folder)), "id")
+		return project
+	'''
 
+	def write_project_commit_comments_to_disk(self, user_name, comments, sub_folder):
+		"""
+		Writes an issue of a repository to disk.
+
+		:param repo_name: the user name.
+		:param issue: the issue to be written to disk.
+		"""
+		if always_write_to_disk:
+			rootfolder = os.path.join(dataFolderPath, user_name)
+			self.write_json_to_file(os.path.join(rootfolder, "commit_comments", str(sub_folder), str(comments["id"]) + ".json"), comments)
 
 

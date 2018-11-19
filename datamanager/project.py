@@ -113,6 +113,13 @@ class Project(dict):
 	def add_repositories_owned(self, repositories_owned):
 		self["repositories_owned"][repositories_owned["id"]] = repositories_owned
 
+#--------
+'''
+	def comment_exists(self, comment):
+		return comment["id"] in self["comments"]
 
+	def add_comment(self, comment):
+		self["comments"][comment["id"]] = comment
+'''
 
 

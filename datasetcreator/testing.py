@@ -7,7 +7,7 @@ sys.path.insert(0, packageFolderPath)
 from dateutil.relativedelta import relativedelta
 from datamanager.filemanager import FileManager
 from datasetcreator.communication import Communication
-from downloader.githubdownloader import GithubDownloader
+#from downloader.githubdownloader import GithubDownloader
 from datasetcreator.pm import Project_management
 
 '''
@@ -107,7 +107,7 @@ def test_comments(dataFolderPath, user_name):
             total_comment_count += 1
             if any(word in issue_comments[issue_id][sub_id]["body"] for word in pm.keywords_db()[2]):
                 test_comments_count += 1
-            if bool(reg.search(issue_comments[issue_id][sub_id]["body"])):
+            if bool(re.findall(reg, issue_comments[issue_id][sub_id]["body"])): #can get even the issue numbers if needed by removing the bool
                 contains_issue_num += 1
             
     
@@ -116,7 +116,7 @@ def test_comments(dataFolderPath, user_name):
             total_comment_count += 1
             if any(word in committ_comments[committ_sha][sub_id]["body"] for word in pm.keywords_db()[2]):
                 test_comments_count += 1
-            if bool(reg.search(issue_comments[issue_id][sub_id]["body"])):
+            if bool(re.findall(reg, issue_comments[issue_id][sub_id]["body"])): #can get even the issue numbers if needed by removing the bool
                 contains_issue_num += 1
             
     

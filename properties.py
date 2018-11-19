@@ -39,5 +39,8 @@ download_issues_assigned_full = True
 download_commits_committed_full = True
 download_commits_authored_full = True
 
+# This True only if all issues and commits is true
+download_issue_comments = True
+download_commit_comments = True
 
 

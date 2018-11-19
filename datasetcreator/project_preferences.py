@@ -21,6 +21,9 @@ class Project_preferences(List_of_repos_urls):
         '''
         This function returns a dictionary with keys the amount of subscripitons, amount of the people that started the repo 
         and as items a list of the amounts per repository.
+
+
+        !!! Make it read from the downloded files of the repos and not make new requests !!!
         '''
         
         ghd = GithubDownloader(GitHubAuthToken)

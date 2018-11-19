@@ -152,7 +152,7 @@ class GithubDownloader:
 			parameters = ["per_page=100"]
 		
 		r = self.download_request(address, parameters, headers)
-		
+	
 		if(r.ok):
 			r_dict = json.loads(r.text or r.content)
 			for obj in r_dict["items"]:
@@ -233,6 +233,7 @@ class GithubDownloader:
 			parameters = ["per_page=100"]
 		
 		r = self.download_request2(address, parameters, headers)
+		
 		if(r.ok):
 			for obj in json.loads(r.text or r.content):
 				yield obj
