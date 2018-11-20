@@ -2,6 +2,7 @@ import os
 import json
 import codecs
 
+
 class FileManager:
 	"""
 	Class that implements a file manager. It includes functions for creating, reading, and
@@ -40,6 +41,20 @@ class FileManager:
 		for filename in os.listdir(foldername):
 			element = self.read_json_from_file(os.path.join(foldername, filename))
 			data[element[element_id]] = element
+		return data
+
+	def read_comment_jsons_from_folder(self, foldername):
+		"""
+		Reads the files that contain comments of issues of a folder into a dict of JSON objects. 
+		
+		:param foldername: the path to the folder from where JSON objects are read.
+		:returns: a dict containing the JSON objects that are contained in the folder.
+		"""
+		data = {}
+		for filename in os.listdir(foldername):
+			element = self.read_json_from_file(os.path.join(foldername, filename))
+			for key, value in element.items():				
+				data[key] = value
 		return data
 
 	def read_json_from_file(self, filename):

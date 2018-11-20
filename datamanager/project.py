@@ -114,12 +114,26 @@ class Project(dict):
 		self["repositories_owned"][repositories_owned["id"]] = repositories_owned
 
 #--------
-'''
-	def comment_exists(self, comment):
-		return comment["id"] in self["comments"]
 
-	def add_comment(self, comment):
-		self["comments"][comment["id"]] = comment
-'''
+	def issue_comment_exists(self, comment):
+		'''
+		This function checks if the list of comments of an issue with a specific id exists in the project
+		'''
+		for key in comment.keys():
+			return key in self["issue_comments"]
+
+	def add_issue_comment(self, comment):
+		self["issue_comments"] = comment
+	
+	def commit_comment_exists(self, comment):
+		'''
+		This function checks if the list of comments of an issue with a specific id exists in the project
+		'''
+		for key in comment.keys():
+			return key in self["commit_comments"]
+
+	def add_commit_comment(self, comment):
+		self["commit_comments"] = comment
+
 
 
