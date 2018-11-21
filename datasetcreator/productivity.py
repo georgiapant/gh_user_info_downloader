@@ -10,7 +10,7 @@ import requests
 from dateutil.relativedelta import relativedelta
 from collections import Counter
 from datasetcreator.communication import Communication
-from datasetcreator.list_of_repos_urls import List_of_repos_urls
+
 
 '''
 This class contains functions that return:
@@ -26,6 +26,14 @@ This class contains functions that return:
 '''
 class Productivity(FileManager,GithubDownloader):
     
+    def __init__(self, dataFolderPath, user_name):
+        self.commit_committed = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_committed","sha")
+        self.commit_authored=self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_authored","sha")
+        self.issues_authored= self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_authored", "id")
+        self.issues_assigned = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_assigned", "id")
+        
+    
+    
     def contribution_days(self,dataFolderPath, user_name):
         '''
         This function takes the days the user made an action. These actions can be: 
@@ -39,31 +47,28 @@ class Productivity(FileManager,GithubDownloader):
         cm = Communication()
         weekday = []
         days_contribution = {} 
-        commit_committed = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_committed","sha")
-        commit_authored=self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_authored","sha")
-        issues_authored= self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_authored", "id")
         comments_by_user = cm.user_comments(dataFolderPath,user_name)[1]
 
-        for element_id in commit_committed.keys():
-            date_str = commit_committed[element_id]["commit"]["committer"]["date"]
+        for element_id in self.commit_committed.keys():
+            date_str = self.commit_committed[element_id]["commit"]["committer"]["date"]
             date = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ') 
             weekday.append(calendar.day_name[date.weekday()])
             #print(weekday)
         
-        for element_id in commit_authored.keys():
-            date_str = commit_authored[element_id]["commit"]["author"]["date"]
+        for element_id in self.commit_authored.keys():
+            date_str = self.commit_authored[element_id]["commit"]["author"]["date"]
             date = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ') 
             weekday.append(calendar.day_name[date.weekday()])
         
         
-        for element_id in issues_authored.keys():
-            date_str = issues_authored[element_id]["created_at"]
+        for element_id in self.issues_authored.keys():
+            date_str = self.issues_authored[element_id]["created_at"]
             date = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ')
             weekday.append(calendar.day_name[date.weekday()])
             
-            if bool(issues_authored[element_id]["closed_at"]):
-                if issues_authored[element_id]["closed_by"]["login"] == user_name:
-                    date_str = issues_authored[element_id]["closed_at"]
+            if bool(self.issues_authored[element_id]["closed_at"]):
+                if self.issues_authored[element_id]["closed_by"]["login"] == user_name:
+                    date_str = self.issues_authored[element_id]["closed_at"]
                     date = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ')
                     weekday.append(calendar.day_name[date.weekday()])
             
@@ -92,23 +97,21 @@ class Productivity(FileManager,GithubDownloader):
         '''
         This function shows the frequency of commits authored and issues authored by the user per day
         '''
-        commit_authored=self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_authored","sha")
-        issues_authored= self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_authored", "id")
         
         committs_per_day = {}
         issues_per_day = {}
         activities_freq = {}
 
-        for element_id in commit_authored.keys():
-            date_str = commit_authored[element_id]["commit"]["author"]["date"]
+        for element_id in self.commit_authored.keys():
+            date_str = self.commit_authored[element_id]["commit"]["author"]["date"]
             date = date_str.split('T')
             try:
                 committs_per_day[date[0]] = committs_per_day[date[0]] + 1
             except:
                 committs_per_day[date[0]] = 1
         
-        for element_id in issues_authored.keys():
-            date_str = issues_authored[element_id]["created_at"]
+        for element_id in self.issues_authored.keys():
+            date_str = self.issues_authored[element_id]["created_at"]
             date = date_str.split('T')
             try:
                 issues_per_day[date[0]] = issues_per_day[date[0]] + 1
@@ -125,18 +128,18 @@ class Productivity(FileManager,GithubDownloader):
         Time difference between the creation of an issue by the user and its closure. 
         This function also returns the amount of still open issues and the amount of issues closed by another user
         '''
-        issues_authored = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_authored", "id")
+        
         created_closed_diff = []
         create_close = {}
         closed_by_user = 0
         closed_by_other = 0
         still_open = 0
 
-        for element_id in issues_authored.keys():
-            if bool(issues_authored[element_id]["closed_at"]):
-                if issues_authored[element_id]["closed_by"]["login"]== user_name:
-                    date_created = datetime.datetime.strptime(issues_authored[element_id]["created_at"],'%Y-%m-%dT%H:%M:%SZ')
-                    date_closed = datetime.datetime.strptime(issues_authored[element_id]["closed_at"],'%Y-%m-%dT%H:%M:%SZ') 
+        for element_id in self.issues_authored.keys():
+            if bool(self.issues_authored[element_id]["closed_at"]):
+                if self.issues_authored[element_id]["closed_by"]["login"]== user_name:
+                    date_created = datetime.datetime.strptime(self.issues_authored[element_id]["created_at"],'%Y-%m-%dT%H:%M:%SZ')
+                    date_closed = datetime.datetime.strptime(self.issues_authored[element_id]["closed_at"],'%Y-%m-%dT%H:%M:%SZ') 
                     a = relativedelta( date_closed,date_created).months, relativedelta(date_closed, date_created).hours, relativedelta(date_closed, date_created).days, \
                     relativedelta(date_closed, date_created).minutes, relativedelta(date_closed, date_created).seconds
                     created_closed_diff.append(a)
@@ -153,21 +156,21 @@ class Productivity(FileManager,GithubDownloader):
         return create_close
 
     def assign_close_issue_diff(self, dataFolderPath, user_name):
-        issues_assigned = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_assigned", "id")
+        
         assigned_closed_diff = []
         closed_issue = 0
         still_open = 0
         closed_by_user = 0
         assign_close = {}
-        for element_id in issues_assigned.keys():
-            if bool(issues_assigned[element_id]["closed_at"]):
-                date_created = datetime.datetime.strptime(issues_assigned[element_id]["created_at"],'%Y-%m-%dT%H:%M:%SZ')
-                date_closed = datetime.datetime.strptime(issues_assigned[element_id]["closed_at"],'%Y-%m-%dT%H:%M:%SZ') 
+        for element_id in self.issues_assigned.keys():
+            if bool(self.issues_assigned[element_id]["closed_at"]):
+                date_created = datetime.datetime.strptime(self.issues_assigned[element_id]["created_at"],'%Y-%m-%dT%H:%M:%SZ')
+                date_closed = datetime.datetime.strptime(self.issues_assigned[element_id]["closed_at"],'%Y-%m-%dT%H:%M:%SZ') 
                 a = relativedelta( date_closed,date_created).months, relativedelta(date_closed, date_created).days, \
                 relativedelta(date_closed, date_created).minutes, relativedelta(date_closed, date_created).seconds
                 assigned_closed_diff.append(a)
                 closed_issue = closed_issue + 1
-                if issues_assigned[element_id]["closed_by"]["login"]== user_name:
+                if self.issues_assigned[element_id]["closed_by"]["login"]== user_name:
                     closed_by_user = closed_by_user + 1
             else:
                 still_open = still_open + 1
@@ -182,11 +185,11 @@ class Productivity(FileManager,GithubDownloader):
         '''
         This function takes the committs committed by a user and returns the difference between two consecutive committs
         '''
-        commit_committed = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_committed","sha")
+        
         dates_list = []
 
-        for element_id in commit_committed.keys():
-            date_str =  commit_committed[element_id]["commit"]["committer"]["date"]
+        for element_id in self.commit_committed.keys():
+            date_str =  self.commit_committed[element_id]["commit"]["committer"]["date"]
             date_committed = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ')
             dates_list.append(date_committed)
         
@@ -202,8 +205,8 @@ class Productivity(FileManager,GithubDownloader):
         This function checks all pulls made by the user in all repositories the user has contributed and keeps the time bettween 
         the pull request and its merge
         '''
-        ls = List_of_repos_urls()
-        list_url = ls.get_list_of_repos_urls(dataFolderPath,user_name)
+        
+        list_url = self.read_json_from_file(dataFolderPath + "/" + user_name +"/list_of_repos.json")
         diff_list = []
         headers = {}
         pull_merged = 0
@@ -252,8 +255,8 @@ class Productivity(FileManager,GithubDownloader):
         and when the repo was created, when it was last updated and the difference between those dates.
         This can be used for deploy rate.
         '''
-        ls = List_of_repos_urls()
-        url_list = ls.get_list_of_repos_urls(dataFolderPath,user_name)
+        
+        url_list = self.read_json_from_file(dataFolderPath + "/" + user_name +"/list_of_repos.json")
         headers = {}
         deploy_dates = {}
         headers["Accept"]="application/vnd.github.ant-man-preview+json"
@@ -316,16 +319,14 @@ class Productivity(FileManager,GithubDownloader):
 
 
     def projects_per_day(self,dataFolderPath, user_name):
-        commit_authored=self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_authored","sha")
-        issues_authored= self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_authored", "id")
         
         projects_per_day = {}
             
-        for element_id in commit_authored.keys():
+        for element_id in self.commit_authored.keys():
             
-            date_str = commit_authored[element_id]["commit"]["author"]["date"]
+            date_str = self.commit_authored[element_id]["commit"]["author"]["date"]
             date = date_str.split('T')
-            project = '/'.join(commit_authored[element_id]["url"].split('/')[:-2])
+            project = '/'.join(self.commit_authored[element_id]["url"].split('/')[:-2])
             try:
                 if project not in projects_per_day[date[0]]["project_list"]:
                     projects_per_day[date[0]]["count"] = projects_per_day[date[0]]["count"] + 1
@@ -337,10 +338,10 @@ class Productivity(FileManager,GithubDownloader):
                 projects_per_day[date[0]]["project_list"] = []
                 projects_per_day[date[0]]["project_list"].append(project)
         
-        for element_id in issues_authored.keys():
-            date_str = issues_authored[element_id]["created_at"]
+        for element_id in self.issues_authored.keys():
+            date_str = self.issues_authored[element_id]["created_at"]
             date = date_str.split('T')
-            project = '/'.join(issues_authored[element_id]["url"].split('/')[:-2])
+            project = '/'.join(self.issues_authored[element_id]["url"].split('/')[:-2])
             try:
                 if date[0] in projects_per_day.keys():
                     if project not in projects_per_day[date[0]]["project_list"]:
@@ -352,11 +353,15 @@ class Productivity(FileManager,GithubDownloader):
                 projects_per_day[date[0]]["project_list"] = []
                 projects_per_day[date[0]]["project_list"].append(project)
         return  projects_per_day
+'''
+user_name = 'nbriz'
+pr = Productivity(dataFolderPath, user_name)
+fm= FileManager()
+test = pr.projects_per_day(dataFolderPath,user_name)
+print(test)
 
-
-#test = pr.projects_per_day(dataFolderPath,user_name)
-
-#fm.write_json_to_file(dataFolderPath + "/" + user_name +"/all_data/projects_per_day_new.json", test) 
+fm.write_json_to_file(dataFolderPath + "/" + user_name +"/PROJECTS_PER_DAY!!!!.json", test) 
+'''
 #test1 = pull_merge_diff(dataFolderPath,user_name)[1]
 #fm.write_json_to_file(dataFolderPath + "/" + user_name +"/pull_requests.json", test1) 
 #print(test) 

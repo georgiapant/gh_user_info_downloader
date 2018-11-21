@@ -5,7 +5,7 @@ import json
 from datamanager.filemanager import FileManager
 from downloader.githubdownloader import GithubDownloader
 from helpers import get_number_of
-from datasetcreator.list_of_repos_urls import List_of_repos_urls
+from list_of_repos_urls import List_of_repos_urls
 from properties import (GitHubAuthToken, dataFolderPath, gitExecutablePath,verbose)
 
 
@@ -26,23 +26,21 @@ class Project_preferences(List_of_repos_urls):
         !!! Make it read from the downloded files of the repos and not make new requests !!!
         '''
         
-        ghd = GithubDownloader(GitHubAuthToken)
-        list_url = self.get_list_of_repos_urls(dataFolderPath,user_name)
+        repos = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/repositories_owned","id")
         stats = {}
-        subscribers = []
+        watchers = []
         stargazers = []
         forks = []
-        for item in list_url:
-            url = "https://api.github.com/repos" +"/"+ '/'.join(item.split('/')[-2:])
-            r = ghd.download_request(url)
-            r_dict = json.loads(r.text)
-            subscribers.append(r_dict["subscribers_count"])
-            stargazers.append(r_dict["stargazers_count"])
-            forks.append(r_dict["forks_count"])
-
-        stats["subscribers_count"]= subscribers
+        
+        for repo_id in repos.keys():
+            watchers.append(repos[repo_id]["watchers_count"])
+            stargazers.append(repos[repo_id]["stargazers_count"])
+            forks.append(repos[repo_id]["forks_count"])
+        
+        stats["watchers_count"]= watchers
         stats["stargazers_count"]=stargazers
         stats["forks_count"]= forks
+        
         return stats
 
     '''
@@ -76,7 +74,8 @@ class Project_preferences(List_of_repos_urls):
         This function returns a dictionary with keys the name of each repository and as values another dictionary with items the 
         amount of commits, amount of contributors and the amount of releases.
         '''
-        list_url = self.get_list_of_repos_urls(dataFolderPath,user_name)
+
+        list_url = self.read_json_from_file(dataFolderPath + "/" + user_name +"/list_of_repos.json")
         ghd = GithubDownloader(GitHubAuthToken)
         stats = {}
         commits = []
@@ -125,6 +124,6 @@ pp= Project_preferences()
 stats = pp.project_scale_stats(dataFolderPath, user_name)
 #avg_pref = get_avg_scale_preference(stats)
 fm = FileManager()
-#fm.write_json_to_file(dataFolderPath + "/" + user_name +"/project_preferences_commits_avg.json", avg_pref)
-fm.write_json_to_file(dataFolderPath + "/" + user_name +"/project_preferences_scale.json", stats)
+fm.write_json_to_file(dataFolderPath + "/" + user_name +"/TEST.json", stats)
+#fm.write_json_to_file(dataFolderPath + "/" + user_name +"/project_preferences_scale.json", stats)
 
