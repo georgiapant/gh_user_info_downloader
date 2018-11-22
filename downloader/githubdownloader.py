@@ -87,7 +87,7 @@ class GithubDownloader:
 					headers = {headers.split(':')[0].strip() : headers.split(':')[1].strip()}
 				else:
 					headers = {}
-				headers['Accept'] = 'application/vnd.github.cloak-preview'
+				headers['Accept'] = 'application/vnd.github.cloak-preview' 
 				headers['Authorization'] = 'token ' + self.credentials
 				r = requests.get(address + parameters, headers=headers)
 				self.set_request_number(r.headers['x-ratelimit-remaining'], r.headers['x-ratelimit-reset'], "api.github.com/search" in address)
@@ -153,10 +153,16 @@ class GithubDownloader:
 		
 		r = self.download_request(address, parameters, headers)
 	
+	
 		if(r.ok):
 			r_dict = json.loads(r.text or r.content)
-			for obj in r_dict["items"]:
-				yield obj
+			#print(r_dict[0])
+			try:
+				for obj in r_dict["items"]:
+					yield obj
+			except:
+				for obj in r_dict:
+					yield obj
 		while True:
 			try:
 				links = {}
@@ -206,7 +212,7 @@ class GithubDownloader:
 					headers = {headers.split(':')[0].strip() : headers.split(':')[1].strip()}
 				else:
 					headers = {}
-				headers['Accept'] = 'application/vnd.github.cloak-preview'
+				headers['Accept'] = 'application/vnd.github.cloak-preview' 
 				headers['Authorization'] = 'token ' + self.credentials
 				r = requests.get(address + parameters, headers=headers)
 				self.set_request_number(r.headers['x-ratelimit-remaining'], r.headers['x-ratelimit-reset'], "api.github.com/search" in address)

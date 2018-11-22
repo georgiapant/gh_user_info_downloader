@@ -20,7 +20,7 @@ class Project(dict):
 
 		:param user: the user to be added to the repository.
 		"""
-		self["user_info"][user_info["id"]] = user_info
+		self["user_info"] = user_info
 
 	def user_stats_exists(self):
 		"""
@@ -58,6 +58,8 @@ class Project(dict):
 	#----------
 
 	def commit_authored_exists(self, commit_authored):
+		#print(commit_authored["sha"])
+		#print(bool(commit_authored["sha"] in self["commit_authored"]))
 		return commit_authored["sha"] in self["commit_authored"]
 
 

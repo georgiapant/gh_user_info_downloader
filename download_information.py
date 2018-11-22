@@ -46,6 +46,7 @@ def download_information(user_address):
 		
 		if project.user_info_exists():
 			lg.log_action("User already exists! Updating...")
+	
 		user_info = ghd.download_object(user_api_address)
 		project.add_user_info(user_info)
 		db.write_project_user_info_to_disk(user_name, project["user_info"])
@@ -89,15 +90,41 @@ def download_information(user_address):
 		lg.end_action()
 		db.write_project_user_stats_to_disk(user_name, project["user_stats"])
 
+		if download_user_repos:
+			lg.start_action("Retrieving user repositories...", user_stats["repos"])
+			user_repos_address = user_api_address + "/repos?type=all"
+
+			for user_repo in ghd.download_paginated_object2(user_repos_address, ["state=all"]):
+				if not project.user_repo_exists(user_repo):
+					project.add_user_repo(user_repo)
+					db.write_project_user_repo_to_disk(user_name, user_repo)
+				lg.step_action()
+			lg.end_action()
+		
+		#saving all repos api urls in a list to be used
+		'''
+		repos_dict = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/user_repo", "id")
+		list_of_repos = []
+		for repo in repos_dict.keys():
+			repo_api_url = repos_dict[repo]["url"]
+			list_of_repos.append(repo_api_url)
+		fm.write_json_to_file(dataFolderPath + "/" + user_name +"/list_of_repos.json", list_of_repos) #will need to read it in metrics as well
+		'''
+		
 
 		if download_commits_authored:
 			lg.start_action("Retrieving committs authored by user...", user_stats["commit_authored"])
-			committs_authored_by_user_address = "https://api.github.com/search/commits?q=author:" + user_name
+			
+			committs_authored_by_user_address = "https://api.github.com/search/commits?q=author:" + user_name+"sort:author-date"
+			#eg of url https://api.github.com/repos/thdiaman/GdDownloader/commits?author=thdiaman
+			#for item in list_of_repos:
+			#committs_authored_by_user_address = item +"/commits?author=" + user_name
+			#print(committs_authored_by_user_address)
 			for commit_authored in ghd.download_paginated_object(committs_authored_by_user_address):
-				if download_commits_authored_full:
-					r = ghd.download_request(commit_authored["url"])
-					commit_authored = json.loads(r.text)				
+							
 				if not project.commit_authored_exists(commit_authored):
+					if download_commits_authored_full:
+						commit_authored = ghd.download_object(commit_authored["url"])
 					project.add_commit_authored(commit_authored)
 					db.write_project_commit_authored_to_disk(user_name, commit_authored)
 				lg.step_action()
@@ -106,12 +133,12 @@ def download_information(user_address):
 		if download_commits_committed:
 			lg.start_action("Retrieving committs committed by user...", user_stats["commit_committed"])
 			committs_committed_by_user_address = "https://api.github.com/search/commits?q=committer:" + user_name
-
+			#for item in list_of_repos:
+			#committs_authored_by_user_address = item +"/commits?committer=" + user_name
 			for commit_committed in ghd.download_paginated_object(committs_committed_by_user_address):
-				if download_commits_committed_full:
-					r = ghd.download_request(commit_committed["url"])
-					commit_committed = json.loads(r.text)
 				if not project.commit_committed_exists(commit_committed):
+					if download_commits_committed_full:
+						commit_committed = ghd.download_object(commit_committed["url"])
 					project.add_commit_committed(commit_committed)
 					db.write_project_commit_committed_to_disk(user_name, commit_committed)
 				lg.step_action()
@@ -122,26 +149,29 @@ def download_information(user_address):
 			issues_assigned_to_user_address = "https://api.github.com/search/issues?q=assignee:" + user_name
 
 			for issue_assigned in ghd.download_paginated_object(issues_assigned_to_user_address):
-				if download_issues_assigned_full:
-					r = ghd.download_request(issue_assigned["url"])
-					issue_assigned = json.loads(r.text)
 				if not project.issue_assigned_exists(issue_assigned):
+					if download_issues_assigned_full:
+						issue_assigned = ghd.download_object(issue_assigned["url"])
 					project.add_issue_assigned(issue_assigned)
 					db.write_project_issue_assigned_to_disk(user_name, issue_assigned)
 				lg.step_action()
 			lg.end_action()
 
+
 		if download_issues_authored:
 			lg.start_action("Retrieving issues authored by user...", user_stats["issues_authored"])
 			issues_authored_from_user_address = "https://api.github.com/search/issues?q=author:" + user_name
-
+			#count = 0
 			for issue_authored in ghd.download_paginated_object(issues_authored_from_user_address):
-				if download_issues_authored_full:
-					r = ghd.download_request(issue_authored["url"])
-					issue_authored = json.loads(r.text)
+				
 				if not project.issue_authored_exists(issue_authored):
-					project.add_issue_authored(issue_authored)
-					db.write_project_issue_authored_to_disk(user_name, issue_authored)
+					if download_issues_authored_full:
+						issue_authored = ghd.download_object(issue_authored["url"])
+					try: #faced the problem that i had no access to the repository
+						project.add_issue_authored(issue_authored)
+						db.write_project_issue_authored_to_disk(user_name, issue_authored)
+					except:
+						continue
 				lg.step_action()
 			lg.end_action()	
 
@@ -150,10 +180,10 @@ def download_information(user_address):
 			issues_mentions_user_address = "https://api.github.com/search/issues?q=mentions:" + user_name
 
 			for issue_mentions in ghd.download_paginated_object(issues_mentions_user_address):
-				if download_issues_mentions_full:
-					r = ghd.download_request(issue_mentions["url"])
-					issue_mentions = json.loads(r.text)
 				if not project.issue_mentions_exists(issue_mentions):
+					if download_issues_mentions_full:
+						issue_mentions = ghd.download_object(issue_mentions["url"])
+						
 					project.add_issue_mentions(issue_mentions)
 					db.write_project_issue_mentions_to_disk(user_name, issue_mentions)
 				lg.step_action()
@@ -164,10 +194,10 @@ def download_information(user_address):
 			issues_commented_by_user_address = "https://api.github.com/search/issues?q=commenter:" + user_name
 
 			for issues_commented in ghd.download_paginated_object(issues_commented_by_user_address):
-				if download_issues_commented_full:
-					r = ghd.download_request(issues_commented["url"])
-					issues_commented = json.loads(r.text)
 				if not project.issue_commented_exists(issues_commented):
+					if download_issues_commented_full:
+						issues_commented = ghd.download_object(issues_commented["url"])
+					
 					project.add_issue_commented(issues_commented)
 					db.write_project_issue_commented_to_disk(user_name, issues_commented)
 				lg.step_action()
@@ -178,10 +208,10 @@ def download_information(user_address):
 			issues_owned_by_user_address = "https://api.github.com/search/issues?q=user:" + user_name
 
 			for issues_owned in ghd.download_paginated_object(issues_owned_by_user_address):
-				if download_issues_owened_full:
-					r = ghd.download_request(issues_owned["url"])
-					issues_owned = json.loads(r.text)
 				if not project.issue_owned_exists(issues_owned):
+					if download_issues_owened_full:
+						issues_owned = ghd.download_object(issues_owned["url"])
+					
 					project.add_issue_owned(issues_owned)
 					db.write_project_issue_owned_to_disk(user_name, issues_owned)
 				lg.step_action()
@@ -198,16 +228,7 @@ def download_information(user_address):
 				lg.step_action()
 			lg.end_action()	
 		
-		if download_user_repos:
-			lg.start_action("Retrieving user repositories...", user_stats["repos"])
-			user_repos_address = user_api_address + "/repos"
-
-			for user_repo in ghd.download_paginated_object2(user_repos_address, ["state=all"]):
-				if not project.user_repo_exists(user_repo):
-					project.add_user_repo(user_repo)
-					db.write_project_user_repo_to_disk(user_name, user_repo)
-				lg.step_action()
-			lg.end_action()
+		
 
 # All Issues can be downloaded only if all commits and issues have been downloaded in advance
 		
@@ -262,9 +283,11 @@ def download_information(user_address):
 			lg.end_action()
 
 		#download list of repos to be read in other functions
-		ls = List_of_repos_urls(FileManager)
+		'''
+		ls = List_of_repos_urls()
 		list_of_repos = ls.get_list_of_repos_urls(dataFolderPath, user_name)
 		fm.write_json_to_file(dataFolderPath + "/" + user_name +"/list_of_repos.json", list_of_repos)
+		'''
 
 
 

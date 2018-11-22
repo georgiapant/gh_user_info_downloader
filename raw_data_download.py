@@ -2,7 +2,7 @@ from properties import GitHubAuthToken, dataFolderPath, gitExecutablePath, verbo
 from datamanager.filemanager import FileManager
 from logger.downloadlogger import Logger
 from downloader.gitdownloader import GitDownloader
-from datasetcreator.list_of_repos_urls import List_of_repos_urls
+
 from datasetcreator.productivity import Productivity
 from datasetcreator.activeness import time_active
 from datasetcreator.communication import Communication
@@ -19,22 +19,16 @@ user_name='nbriz'
 This is a file to run to gather a first example of all possible raw data that can be dowloaded
 '''
 
-lr_url = List_of_repos_urls()
-productivity = Productivity(GitHubAuthToken)
+productivity = Productivity(GitHubAuthToken, user_name)
 fm = FileManager()
 cm = Communication()
 lan = Languages()
-pm = Project_management()
+pm = Project_management(dataFolderPath,user_name)
 pp = Project_preferences()
 lg = Logger(verbose)
 gd = GitDownloader(gitExecutablePath, lg)
 
-lg.start_action("Retrieving user data ...", 22)
-
-list_url = lr_url.get_list_of_repos_urls(dataFolderPath,user_name)
-fm.write_json_to_file(dataFolderPath + "/" + user_name +"/all_data/list_url.json", list_url) 
-print("list_url done")
-lg.step_action()
+lg.start_action("Retrieving user data ...", 20)
 
 contribution_days = productivity.contribution_days(dataFolderPath,user_name)
 fm.write_json_to_file(dataFolderPath + "/" + user_name +"/all_data/contribution_days.json", contribution_days) 
@@ -135,12 +129,12 @@ project_scale_stats = pp.project_scale_stats(dataFolderPath,user_name)
 fm.write_json_to_file(dataFolderPath + "/" + user_name +"/all_data/project_scale_stats.json", project_scale_stats)
 print("project scale stats done") 
 lg.step_action()
-
+'''
 response_time_to_comments_mentioned = response_time_to_comments_mentioned(dataFolderPath,user_name)
 fm.write_json_to_file(dataFolderPath + "/" + user_name +"/all_data/response_time_to_comments_mentioned.json", response_time_to_comments_mentioned)
 print("response time to comments mentioned done") 
 lg.end_action()
-
+'''
 
 
 

@@ -26,7 +26,7 @@ class List_of_repos_urls(FileManager):
                 list_url.append(url)
         
         for element_id in commit_committed.keys():
-            url = '/'.join(commit_authored[element_id]["html_url"].split('/')[:-2])
+            url = '/'.join(commit_committed[element_id]["html_url"].split('/')[:-2])
             if url not in list_url:
                 list_url.append(url)
         
@@ -80,14 +80,14 @@ class List_of_repos_urls(FileManager):
 
         list_url = []
         for element_id in repos_owned.keys():
-                url = repos_owned[element_id]["html_url"]
-                if url not in list_url:
-                    list_url.append(url)
+            url = repos_owned[element_id]["html_url"]
+            if url not in list_url:
+                list_url.append(url)
 
         for element_id in repos_owned_wforked.keys():
-                url = repos_owned_wforked[element_id]["html_url"]
-                if url not in list_url:
-                    list_url.append(url)
+            url = repos_owned_wforked[element_id]["html_url"]
+            if url not in list_url:
+                list_url.append(url)
         return list_url
 
     def get_list_of_repos_urls(self, dataFolderPath, user_name):

@@ -66,6 +66,7 @@ class FileManager:
 		"""
 		with codecs.open(filename, 'r', 'utf-8') as infile:
 			data = json.load(infile)
+			
 		return data
 
 	def write_json_to_file(self, filename, data):
