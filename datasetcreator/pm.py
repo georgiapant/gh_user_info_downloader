@@ -8,6 +8,7 @@ from datamanager.filemanager import FileManager
 from datasetcreator.communication import Communication
 #from downloader.githubdownloader import GithubDownloader
 from list_of_repos_urls import List_of_repos_urls
+from datasetcreator.dbs import Databases
 
 '''
 Class that includes functions that are related to project management skills
@@ -18,7 +19,7 @@ class Project_management(FileManager):
     def __init__(self, dataFolderPath, user_name):
         self.issues_authored = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_authored", "id")
         
-    
+    '''
     def keywords_db(self):
         project_words = ["plan","timeline","project", "sprint", "risk", "resources", "agile" , "progress", "cost", "planning", "budget", "analysis", \
         "business model" , "value", "communication", "task", "task manager", "complete", "constraint", "stakeholders", "customer", "critical success factor", \
@@ -29,19 +30,20 @@ class Project_management(FileManager):
         "quality", "QA", "quality assurance", "re-testing", "risk", "scenario", "tpi"]
 
         return project_words, bug_words, test_words
+    '''
 
     def bug_assigned(self, dataFolderPath, user_name):
-        
+        dbs = Databases()
         count_issues = 0
         issue_id_list = []
         for issue_id in self.issues_authored.keys():
             if bool(self.issues_authored[issue_id]["assignee"]): #False if dict is empty
-                if any(word in self.issues_authored[issue_id]["body"] for word in self.keywords_db()[1]):               
+                if any(word in self.issues_authored[issue_id]["body"] for word in dbs.keywords_db()[1]):               
                     count_issues = count_issues + 1
                     issue_id_list.append(issue_id)
                 else:
                     for item in range(len(self.issues_authored[issue_id]["labels"])):
-                        if any(word in self.issues_authored[issue_id]["labels"][item]["name"] for word in self.keywords_db()[1]):
+                        if any(word in self.issues_authored[issue_id]["labels"][item]["name"] for word in dbs.keywords_db()[1]):
                             count_issues = count_issues + 1
                             issue_id_list.append(issue_id)
                 
@@ -94,6 +96,7 @@ class Project_management(FileManager):
         return total_milestones, milestones_authored_by_user, total_issues_authored
 
     def project_comments(self, dataFolderPath, user_name):
+        dbs = Databases()
         cm = Communication()
         comments = cm.user_comments(dataFolderPath,user_name)[1]
         comments_project = 0
@@ -102,7 +105,7 @@ class Project_management(FileManager):
             for comment_id in comments["comments_on_issues"][issue_id].keys():
                 body = comments["comments_on_issues"][issue_id][comment_id]["body"]
                 total_comments = total_comments + 1
-                if any(word in body for word in self.keywords_db()[0]):
+                if any(word in body for word in dbs.keywords_db()[0]):
                     comments_project = comments_project + 1
 
 
@@ -110,7 +113,7 @@ class Project_management(FileManager):
             for comment_id in comments["commnents_on_committs"][issue_id].keys():
                 body = comments["commnents_on_committs"][issue_id][comment_id]["body"]
                 total_comments = total_comments + 1
-                if any(word in body for word in self.keywords_db()[0]):
+                if any(word in body for word in dbs.keywords_db()[0]):
                     comments_project = comments_project + 1
 
 
