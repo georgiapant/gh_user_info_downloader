@@ -8,7 +8,7 @@ from dateutil.relativedelta import relativedelta
 from datamanager.filemanager import FileManager
 from datasetcreator.communication import Communication
 #from downloader.githubdownloader import GithubDownloader
-from datasetcreator.pm import Project_management
+from datasetcreator.dbs import Databases
 
 '''
 - close issues labeled with keywords like bug, faulty etc - done
@@ -19,8 +19,9 @@ from datasetcreator.pm import Project_management
 '''
 user_name = 'nbriz'
 fm = FileManager()
-pm = Project_management()
+#pm = Project_management()
 cm = Communication()
+dbs = Databases()
 
 def closed_issues(dataFolderPath, user_name):
     '''
@@ -42,7 +43,7 @@ def closed_issues(dataFolderPath, user_name):
             closed_issues_count += 1
             if bool(issues_authored[issue_id]["labels"]):                 
                 for item in range(len(issues_authored[issue_id]["labels"])):
-                    if any(word in issues_authored[issue_id]["labels"][item]["name"] for word in pm.keywords_db()[1]):                    
+                    if any(word in issues_authored[issue_id]["labels"][item]["name"] for word in dbs.keywords_db()[1]):                    
                         closed_bugs_count += 1
     
     for issue_id in issues_assigned.keys():
@@ -52,7 +53,7 @@ def closed_issues(dataFolderPath, user_name):
                 closed_issues_count += 1
                 if bool(issues_assigned[issue_id]["labels"]): 
                     for item in range(len(issues_assigned[issue_id]["labels"])):
-                        if any(word in issues_assigned[issue_id]["labels"][item]["name"] for word in pm.keywords_db()[1]): 
+                        if any(word in issues_assigned[issue_id]["labels"][item]["name"] for word in dbs.keywords_db()[1]): 
                             closed_bugs_count += 1
 
     for issue_id in issues_commented.keys():
@@ -62,7 +63,7 @@ def closed_issues(dataFolderPath, user_name):
                 closed_issues_count += 1
                 if bool(issues_commented[issue_id]["labels"]):                     
                     for item in range(len(issues_commented[issue_id]["labels"])): 
-                        if any(word in issues_commented[issue_id]["labels"][item]["name"] for word in pm.keywords_db()[1]): 
+                        if any(word in issues_commented[issue_id]["labels"][item]["name"] for word in dbs.keywords_db()[1]): 
                             closed_bugs_count += 1
 
     for issue_id in issues_mentions.keys():
@@ -72,7 +73,7 @@ def closed_issues(dataFolderPath, user_name):
                 closed_issues_count += 1
                 if bool(issues_mentions[issue_id]["labels"]):
                     for item in range(len(issues_mentions[issue_id]["labels"])):
-                        if any(word in issues_mentions[issue_id]["labels"][item]["name"] for word in pm.keywords_db()[1]): 
+                        if any(word in issues_mentions[issue_id]["labels"][item]["name"] for word in dbs.keywords_db()[1]): 
                             closed_bugs_count += 1
 
     for issue_id in issues_owned.keys():
@@ -82,7 +83,7 @@ def closed_issues(dataFolderPath, user_name):
                 closed_issues_count += 1
                 if bool(issues_owned[issue_id]["labels"]): 
                     for item in range(len(issues_owned[issue_id]["labels"])):                        
-                        if any(word in issues_owned[issue_id]["labels"][item]["name"] for word in pm.keywords_db()[1]): 
+                        if any(word in issues_owned[issue_id]["labels"][item]["name"] for word in dbs.keywords_db()[1]): 
                             closed_bugs_count += 1
 
     return closed_bugs_count, closed_issues_count
@@ -105,7 +106,7 @@ def test_comments(dataFolderPath, user_name):
     for issue_id in issue_comments.keys():
         for sub_id in issue_comments[issue_id].keys():
             total_comment_count += 1
-            if any(word in issue_comments[issue_id][sub_id]["body"] for word in pm.keywords_db()[2]):
+            if any(word in issue_comments[issue_id][sub_id]["body"] for word in dbs.keywords_db()[2]):
                 test_comments_count += 1
             if bool(re.findall(reg, issue_comments[issue_id][sub_id]["body"])): #can get even the issue numbers if needed by removing the bool
                 contains_issue_num += 1
@@ -114,7 +115,7 @@ def test_comments(dataFolderPath, user_name):
     for committ_sha in committ_comments.keys():
         for sub_id in committ_comments[committ_sha].keys():
             total_comment_count += 1
-            if any(word in committ_comments[committ_sha][sub_id]["body"] for word in pm.keywords_db()[2]):
+            if any(word in committ_comments[committ_sha][sub_id]["body"] for word in dbs.keywords_db()[2]):
                 test_comments_count += 1
             if bool(re.findall(reg, issue_comments[issue_id][sub_id]["body"])): #can get even the issue numbers if needed by removing the bool
                 contains_issue_num += 1
@@ -122,9 +123,30 @@ def test_comments(dataFolderPath, user_name):
     
     return test_comments_count, contains_issue_num, total_comment_count
 
+def add_test_case(dataFolderPath, user_name):
+    '''
+    This function returns the amount of added files include the string /test/ or /tests/ in their name. 
+    It is assumed that those files are part of test cases made by the user
+    '''
+    commit_authored = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_authored","sha")
+    list_of_filenames = []
+    test_cases = 0
 
+    for element_id in commit_authored.keys():
+        files = commit_authored[element_id]["files"]
+        for item in range(len(files)):
+            file_name = files[item]["filename"]
+            list_of_filenames.append(file_name)
+    
+    for item in range(len(list_of_filenames)):
+        if any(word in list_of_filenames[item] for word in dbs.keywords_db()[3]):
+            test_cases +=1
 
-x = test_comments(dataFolderPath,user_name)
+    return test_cases
+
+'''
+dataFolderPath = '/Users/georgia/Desktop'
+x = add_test_case(dataFolderPath,user_name)
 print(x)
-
+'''
 

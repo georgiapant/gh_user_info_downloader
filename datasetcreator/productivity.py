@@ -241,11 +241,7 @@ class Productivity(FileManager,GithubDownloader):
                         pull_open = pull_open +1
                     pulls_total = pulls_total + 1
 
-        pulls["pull_merged"] = pull_merged
-        pulls["pull_closed_not_merged"] = pull_closed_not_merged
-        pulls["pull_open"] = pull_open
-        pulls["pulls_total"] = pulls_total
-        pulls["pull_merge_diff"] = diff_list  
+        
 
         return pulls
 

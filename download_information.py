@@ -115,7 +115,7 @@ def download_information(user_address):
 		if download_commits_authored:
 			lg.start_action("Retrieving committs authored by user...", user_stats["commit_authored"])
 			
-			committs_authored_by_user_address = "https://api.github.com/search/commits?q=author:" + user_name+"sort:author-date"
+			committs_authored_by_user_address = "https://api.github.com/search/commits?q=author:" + user_name+"&sort:author-date"
 			#eg of url https://api.github.com/repos/thdiaman/GdDownloader/commits?author=thdiaman
 			#for item in list_of_repos:
 			#committs_authored_by_user_address = item +"/commits?author=" + user_name
@@ -262,7 +262,7 @@ def download_information(user_address):
 					r_dict = json.loads(r.text)
 					comment = {}
 					comment[commit_sha]= r_dict  
-					print("its here!")
+					#print("its here!")
 					if not project.commit_comment_exists(comment):
 						project.add_commit_comment(comment)
 						db.write_project_commit_comments_to_disk(user_name, comment) 
@@ -275,7 +275,7 @@ def download_information(user_address):
 					r_dict = json.loads(r.text)
 					comment = {}
 					comment[commit_sha]= r_dict  
-					print("its here too!")
+					#print("its here too!")
 					if not project.commit_comment_exists(comment):
 						project.add_commit_comment(comment)
 						db.write_project_commit_comments_to_disk(user_name, comment)     				

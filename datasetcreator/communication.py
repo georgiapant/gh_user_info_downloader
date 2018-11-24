@@ -175,7 +175,7 @@ class Communication (FileManager):
     def comment_reactions(self, dataFolderPath, user_name):
 
         '''
-        This functions returns a dictionary with keys the comment urls and as items the detailed reactions.
+        This functions returns a dictionary with keys the d.
         It also returns a dictionary with keys the comment urls and as items the reactions count.
         '''
         #remember it needs special header

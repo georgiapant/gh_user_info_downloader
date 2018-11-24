@@ -8,12 +8,13 @@ class Databases():
         "business model" , "value", "communication", "task", "task manager", "complete", "constraint", "stakeholders", "customer", "critical success factor", \
         "KPI", "effort", "impact", "XP", "goal setting", "goal" , "HR"]
         bug_words = ["bug", "error","defect","debug", "faulty", "problem", "trial", "try", "tried","solve", "solution", "fix", "fixed", "issue", \
-        "wrong", "mistake", "issues"]
-        test_words = ["test", "defect", "test case", "testing", "debugging", "expected result", "fat", "fault injection", "maintenance"\
+        "wrong", "mistake", "issues", "debugging"]
+        test_words = ["test", "defect", "test case", "testing", "expected result", "fat", "fault injection", "maintenance"\
         "quality", "QA", "quality assurance", "re-testing", "risk", "scenario", "tpi"]
         test_filenames = ["/test/", "/tests/"]
+        operational = ["md", "txt", "LICENSE", "pdf", "doc", "docx", "license", "document", "documentation"]
 
-        return project_words, bug_words, test_words, test_filenames
+        return project_words, bug_words, test_words, test_filenames, operational
 
     def languages_db(self,file_endings):
         '''

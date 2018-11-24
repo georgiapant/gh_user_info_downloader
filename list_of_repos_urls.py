@@ -91,7 +91,10 @@ class List_of_repos_urls(FileManager):
         return list_url
 
     def get_list_of_repos_urls(self, dataFolderPath, user_name):
-        list1 = self.list_of_repos_urls_from_committs(dataFolderPath,user_name) +self.list_of_repos_urls_from_issues(dataFolderPath,user_name) + self.list_of_repos_urls_from_repos_owned(dataFolderPath, user_name)
+        list1 = self.list_of_repos_urls_from_committs(dataFolderPath,user_name) \
+        +self.list_of_repos_urls_from_issues(dataFolderPath,user_name) \
+        + self.list_of_repos_urls_from_repos_owned(dataFolderPath, user_name)
+        
         final_list = []
         
         for element in list1:

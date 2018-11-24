@@ -11,8 +11,8 @@ class Languages(FileManager):
 
     def count_languages(self, dataFolderPath, user_name):
         '''
-        This function returns a dictionary with as keys programming languages and as values the amount of committs the user has
-        made with that language.
+        This function returns a dictionary with as keys programming languages and as values the amount of files 
+        the user has committed written in that language.
 
         :dataFolderPath: The main folder that the json files that need to be iterated are
         :user_name: The username of the user that we are processing

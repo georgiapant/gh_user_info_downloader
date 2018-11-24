@@ -20,7 +20,7 @@ verbose = 1
 always_write_to_disk = True
 
 
-download_user_repos = False #includes the forked ones
+download_user_repos = True #includes the forked ones
 download_commits_authored  = True
 download_commits_committed = True
 download_issues_assigned = True
