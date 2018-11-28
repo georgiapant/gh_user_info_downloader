@@ -118,12 +118,15 @@ class Project_preferences(List_of_repos_urls):
         return average_preference
     '''
 
-
+'''
 user_name='nbriz'
 pp= Project_preferences() 
 stats = pp.project_scale_stats(dataFolderPath, user_name)
+'''
 #avg_pref = get_avg_scale_preference(stats)
+'''
 fm = FileManager()
 fm.write_json_to_file(dataFolderPath + "/" + user_name +"/TEST.json", stats)
+'''
 #fm.write_json_to_file(dataFolderPath + "/" + user_name +"/project_preferences_scale.json", stats)
 

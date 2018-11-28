@@ -386,7 +386,7 @@ class Productivity(FileManager,GithubDownloader):
         	count.append(projects_per_day[key]["count"])
 
         return  projects_per_day, count
-
+'''
 user_name = 'nbriz'
 pr = Productivity(dataFolderPath, user_name)
 fm= FileManager()
@@ -394,7 +394,7 @@ test = pr.projects_per_day(dataFolderPath,user_name)
 print(test)
 
 fm.write_json_to_file(dataFolderPath + "/" + user_name +"/PROJECTS_PER_DAY!!!!.json", test) 
-
+'''
 #test1 = pull_merge_diff(dataFolderPath,user_name)[1]
 #fm.write_json_to_file(dataFolderPath + "/" + user_name +"/pull_requests.json", test1) 
 #print(test) 

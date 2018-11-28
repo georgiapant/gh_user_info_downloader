@@ -17,7 +17,7 @@ from datasetcreator.dbs import Databases
 - number of issues he closed by the user - done
 - amount of test cases added (file committed with test relevant words in their name)
 '''
-user_name = 'nbriz'
+#user_name = 'nbriz'
 fm = FileManager()
 #pm = Project_management()
 cm = Communication()
