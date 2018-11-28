@@ -17,7 +17,7 @@ make additional requests for amount of contributors, realeases and commits
 
 class Project_preferences(List_of_repos_urls):
     
-    def f(self, dataFolderPath,user_name):
+    def project_popularity_stats(self, dataFolderPath,user_name):
         '''
         This function returns a dictionary with keys the amount of subscripitons, amount of the people that started the repo 
         and as items a list of the amounts per repository.

@@ -96,11 +96,15 @@ class Productivity(FileManager,GithubDownloader):
     def activities_frequency(self, dataFolderPath, user_name): #committs per day, issues per day
         '''
         This function shows the frequency of commits authored and issues authored by the user per day
+
+        !!!!Need to combine issues commits in one list and one dict
         '''
         
         committs_per_day = {}
         issues_per_day = {}
         activities_freq = {}
+        count_issues = []
+        count_commits = []
 
         for element_id in self.commit_authored.keys():
             date_str = self.commit_authored[element_id]["commit"]["author"]["date"]
@@ -120,10 +124,17 @@ class Productivity(FileManager,GithubDownloader):
         
         activities_freq["issues_per_day"] = issues_per_day
         activities_freq["committs_per_day"] = committs_per_day
-        
-        return activities_freq
 
-    def create_close_issue_diff(self,dataFolderPath,user_name):
+        for key in activities_freq["issues_per_day"].keys():
+        	count_issues.append(activities_freq["issues_per_day"][key])
+
+        for key in activities_freq["committs_per_day"].keys():
+        	count_commits.append(activities_freq["committs_per_day"][key])
+
+        
+        return activities_freq, count_issues, count_commits
+
+    def create_close_issue_diff(self,user_name):
         '''
         Time difference between the creation of an issue by the user and its closure. 
         This function also returns the amount of still open issues and the amount of issues closed by another user
@@ -139,9 +150,13 @@ class Productivity(FileManager,GithubDownloader):
             if bool(self.issues_authored[element_id]["closed_at"]):
                 if self.issues_authored[element_id]["closed_by"]["login"]== user_name:
                     date_created = datetime.datetime.strptime(self.issues_authored[element_id]["created_at"],'%Y-%m-%dT%H:%M:%SZ')
-                    date_closed = datetime.datetime.strptime(self.issues_authored[element_id]["closed_at"],'%Y-%m-%dT%H:%M:%SZ') 
+                    date_closed = datetime.datetime.strptime(self.issues_authored[element_id]["closed_at"],'%Y-%m-%dT%H:%M:%SZ')
+                    ''' 
                     a = relativedelta( date_closed,date_created).months, relativedelta(date_closed, date_created).hours, relativedelta(date_closed, date_created).days, \
                     relativedelta(date_closed, date_created).minutes, relativedelta(date_closed, date_created).seconds
+                    '''
+                    a = (date_closed-date_created).total_seconds()
+
                     created_closed_diff.append(a)
                     closed_by_user = closed_by_user + 1
                 else:
@@ -166,8 +181,9 @@ class Productivity(FileManager,GithubDownloader):
             if bool(self.issues_assigned[element_id]["closed_at"]):
                 date_created = datetime.datetime.strptime(self.issues_assigned[element_id]["created_at"],'%Y-%m-%dT%H:%M:%SZ')
                 date_closed = datetime.datetime.strptime(self.issues_assigned[element_id]["closed_at"],'%Y-%m-%dT%H:%M:%SZ') 
-                a = relativedelta( date_closed,date_created).months, relativedelta(date_closed, date_created).days, \
-                relativedelta(date_closed, date_created).minutes, relativedelta(date_closed, date_created).seconds
+                #a = relativedelta( date_closed,date_created).months, relativedelta(date_closed, date_created).days, \
+                #relativedelta(date_closed, date_created).minutes, relativedelta(date_closed, date_created).seconds
+                a = (date_closed-date_created).total_seconds()
                 assigned_closed_diff.append(a)
                 closed_issue = closed_issue + 1
                 if self.issues_assigned[element_id]["closed_by"]["login"]== user_name:
@@ -176,6 +192,7 @@ class Productivity(FileManager,GithubDownloader):
                 still_open = still_open + 1
         assign_close["still_open_issues"] = still_open
         assign_close["closed_issue"] = closed_issue
+        assign_close["closed_by_other"] = closed_issue - closed_by_user
         assign_close["closed_by_user"] = closed_by_user
         assign_close["create_close_diff"] = assigned_closed_diff
 
@@ -194,9 +211,13 @@ class Productivity(FileManager,GithubDownloader):
             dates_list.append(date_committed)
         
         dates_list.sort()
+        '''
         dates = [(relativedelta(commit_2,commit_1).years, relativedelta(commit_2,commit_1).months, \
         relativedelta(commit_2, commit_1).days, relativedelta(commit_2, commit_1).hours, relativedelta(commit_2, commit_1).minutes,\
         relativedelta(commit_2, commit_1).seconds) for commit_1, commit_2 in zip(dates_list[:-1], dates_list[1:])]
+        '''
+        dates = [(commit_2-commit_1).total_seconds() for commit_1, commit_2 in zip(dates_list[:-1], dates_list[1:])]
+       
         return dates
 
 
@@ -230,17 +251,24 @@ class Productivity(FileManager,GithubDownloader):
                         date_created = datetime.datetime.strptime(date_created_str, '%Y-%m-%dT%H:%M:%SZ')
                         date_merged_str =  r_dict[item]["merged_at"]
                         date_merged= datetime.datetime.strptime(date_merged_str, '%Y-%m-%dT%H:%M:%SZ')
+                        '''
                         diff= (relativedelta(date_merged,date_created).years, relativedelta(date_merged,date_created).months, \
                         relativedelta(date_merged, date_created).days, relativedelta(date_merged, date_created).hours, \
                         relativedelta(date_merged, date_created).minutes, relativedelta(date_merged, date_created).seconds)
-                        diff_list.append(diff)                    
+                        '''
+                        diff = (date_merged-date_created).total_seconds()     
+                        diff_list.append(diff)               
                         pull_merged = pull_merged + 1
                     elif bool(r_dict[item]["closed_at"]):
                         pull_closed_not_merged = pull_closed_not_merged + 1
                     else:
                         pull_open = pull_open +1
                     pulls_total = pulls_total + 1
-
+        pulls["pull_merged"] = pull_merged
+        pulls["pull_closed_not_merged"] = pull_closed_not_merged
+        pulls["pull_open"] = pull_open
+        pulls["pulls_total"] = pulls_total
+        pulls["pull_merge_diff"] = diff_list 
         
 
         return pulls
@@ -274,9 +302,12 @@ class Productivity(FileManager,GithubDownloader):
                     dates_list.append(date_created)
                     
                 dates_list.sort()
+                '''
                 dates = [(relativedelta(deploy_2,deploy_1).years, relativedelta(deploy_2,deploy_1).months, \
                 relativedelta(deploy_2, deploy_1).days, relativedelta(deploy_2, deploy_1).hours, relativedelta(deploy_2, deploy_1).minutes,\
                 relativedelta(deploy_2, deploy_1).seconds) for deploy_1, deploy_2 in zip(dates_list[:-1], dates_list[1:])]
+                '''
+                dates = [(deploy_2-deploy_1).total_seconds() for deploy_1, deploy_2 in zip(dates_list[:-1], dates_list[1:])]
                 deploy_dates[url]["dates_diff"]=dates
 
                 #to get how long this repo is active
@@ -317,6 +348,7 @@ class Productivity(FileManager,GithubDownloader):
     def projects_per_day(self,dataFolderPath, user_name):
         
         projects_per_day = {}
+        count = []
             
         for element_id in self.commit_authored.keys():
             
@@ -333,6 +365,7 @@ class Productivity(FileManager,GithubDownloader):
                 projects_per_day[date[0]]["count"] = 1
                 projects_per_day[date[0]]["project_list"] = []
                 projects_per_day[date[0]]["project_list"].append(project)
+
         
         for element_id in self.issues_authored.keys():
             date_str = self.issues_authored[element_id]["created_at"]
@@ -348,8 +381,12 @@ class Productivity(FileManager,GithubDownloader):
                 projects_per_day[date[0]]["count"] = 1
                 projects_per_day[date[0]]["project_list"] = []
                 projects_per_day[date[0]]["project_list"].append(project)
-        return  projects_per_day
-'''
+
+        for key in projects_per_day.keys():
+        	count.append(projects_per_day[key]["count"])
+
+        return  projects_per_day, count
+
 user_name = 'nbriz'
 pr = Productivity(dataFolderPath, user_name)
 fm= FileManager()
@@ -357,7 +394,7 @@ test = pr.projects_per_day(dataFolderPath,user_name)
 print(test)
 
 fm.write_json_to_file(dataFolderPath + "/" + user_name +"/PROJECTS_PER_DAY!!!!.json", test) 
-'''
+
 #test1 = pull_merge_diff(dataFolderPath,user_name)[1]
 #fm.write_json_to_file(dataFolderPath + "/" + user_name +"/pull_requests.json", test1) 
 #print(test) 
