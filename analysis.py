@@ -1,5 +1,5 @@
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 #import statistics 
 from datasetcreator.commits import commit_changes
 from datasetcreator.operational import documentation_commit
@@ -7,8 +7,8 @@ from datasetcreator.productivity import Productivity
 from datamanager.filemanager import FileManager
 
 
-user_name = 'nbriz'
-dataFolderPath = '/Users/georgia/Desktop'
+#user_name = 'nbriz'
+#dataFolderPath = '/Users/georgia/Desktop'
 
 
 ##################
@@ -99,14 +99,15 @@ def to_day_hour_min_sec(seconds):
     '''
     Takes seconds and transdorms them to Days:hours:minutes:seconds
     '''
-    y =("%d:%d:%d:%d" %((datetime(1,1,1) + datetime.timedelta(seconds=seconds)).day-1, (datetime(1,1,1) + datetime.timedelta(seconds=seconds)).hour, (datetime(1,1,1) + datetime.timedelta(seconds=seconds)).minute, (datetime(1,1,1) + datetime.timedelta(seconds=seconds)).second))
+    y =("%d:%d:%d:%d" %((datetime(1,1,1) + timedelta(seconds=seconds)).day-1, (datetime(1,1,1) + timedelta(seconds=seconds)).hour, (datetime(1,1,1) + timedelta(seconds=seconds)).minute, (datetime(1,1,1) + timedelta(seconds=seconds)).second))
     return y
     
-
+'''
 pr = Productivity(dataFolderPath, user_name)
 fm = FileManager()
 x = pr.create_close_issue_diff(user_name)
 fm.write_json_to_file(dataFolderPath + "/" + user_name +"/new_create_close_issue_diff!!!!.json", x) 
+'''
 #x = additions_deletions_stats(data)
 #y = additions_deletions_stats(data1)
 #z = x.join(y)
