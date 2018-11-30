@@ -12,13 +12,13 @@ user_api_address = "https://api.github.com/users/" + '/'.join(user_address.split
 user_name='nbriz'
 
 fm = FileManager()
-def time_active(dataFolderPath, user_name):
+def time_active(commit_committed):
     '''
     This funtion returns the years, months and days between the first commit committed and the last by the user in the form of a tuple
     It needs to have downloaded the full version of the committs_committed 
     '''
    
-    commit_committed = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_committed","sha")
+    #commit_committed = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_committed","sha")
 
     first_commit = datetime.datetime.combine(datetime.datetime.now().date(), datetime.datetime.now().time())
     last_commit = datetime.datetime.combine(datetime.date.min,  datetime.time.min)

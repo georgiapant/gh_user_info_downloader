@@ -1,35 +1,5 @@
 import pandas as pd
 from datetime import datetime, timedelta
-#import statistics 
-from datasetcreator.commits import commit_changes
-from datasetcreator.operational import documentation_commit
-from datasetcreator.productivity import Productivity
-from datamanager.filemanager import FileManager
-
-
-#user_name = 'nbriz'
-#dataFolderPath = '/Users/georgia/Desktop'
-
-
-##################
-#df = pd.DataFrame(data)
-# example 
-# CSS = df['CSS']
-#additions = CSS['additions']
-#deletions = CSS['deletions']
-#df2 = pd.Series( (v for v in additions) )
-#df3 = pd.Series( (v for v in deletions) )
-#col_names = ['CSS additions', 'CSS deletions', 'nada']
-#x = df2.describe()
-#y = df3.describe()
-#z = df3.describe()
-#data_tuples = list(zip(x,y,z))
-#new = pd.DataFrame(data_tuples, columns=col , index=list(x.index))
-####################
-
-#data = commit_changes(dataFolderPath, user_name)
-#data1 = documentation_commit(dataFolderPath,user_name)[0]
-#print(data)
 
 def additions_deletions_stats(data):
     '''

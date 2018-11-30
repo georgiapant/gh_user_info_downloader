@@ -18,11 +18,11 @@ Left to do two functions and retest the comment_reactions()
 
 class Communication (FileManager):    
 
-    def comments_on_issues(self, dataFolderPath, user_name):
+    def comments_on_issues(self, user_name, issue_comments):
         '''
         This function returns all comment URLs of comments on issues and the comments themselves
         '''
-        issue_comments = self.read_comment_jsons_from_folder(dataFolderPath+"/"+ user_name + "/issue_comments")
+        #issue_comments = self.read_comment_jsons_from_folder(dataFolderPath+"/"+ user_name + "/issue_comments")
         list_url = []
         comments = {}
 
@@ -54,13 +54,13 @@ class Communication (FileManager):
 
 
 
-    def comments_on_committs(self, dataFolderPath, user_name):
+    def comments_on_committs(self,  user_name, commit_authored_comments):
         '''
         This function returns all comment URLs of comments on committs and the comments themselves
         '''
 
-        commit_authored_comments=self.read_comment_jsons_from_folder(dataFolderPath+"/"+ user_name + "/commit_comments")
-        commit_committed_comments = self.read_comment_jsons_from_folder(dataFolderPath+"/"+ user_name + "/commit_comments")
+        #commit_authored_comments=self.read_comment_jsons_from_folder(dataFolderPath+"/"+ user_name + "/commit_comments")
+        #commit_committed_comments = self.read_comment_jsons_from_folder(dataFolderPath+"/"+ user_name + "/commit_comments")
          
         comments = {}
         list_url = []
@@ -86,7 +86,7 @@ class Communication (FileManager):
                             list_url.append(url)          
                 except IndexError:
                     continue 
-
+        '''
         for element_id in commit_committed_comments.keys():
             
             r_dict = commit_committed_comments[element_id]
@@ -108,15 +108,16 @@ class Communication (FileManager):
                             list_url.append(url)          
                 except IndexError:
                     continue 
+        '''
         return list_url, comments
 
-    def user_comments(self, dataFolderPath,user_name):
+    def user_comments(self,user_name, issue_comments, commit_authored_comments):
         '''
         This function returns a list of URLs of the comments the user had made (can be used ot get reactions)
         and a dictionary with all those comments (can be used to evaluate his comments)
         '''
-        issues_comments_urls, issues_comments=self.comments_on_issues(dataFolderPath,user_name)
-        committs_comments_urls, committs_comments = self.comments_on_committs(dataFolderPath, user_name)
+        issues_comments_urls, issues_comments=self.comments_on_issues(user_name, issue_comments)
+        committs_comments_urls, committs_comments = self.comments_on_committs(user_name, commit_authored_comments)
         
         list1 = issues_comments_urls + committs_comments_urls
         final_url_list = []
@@ -133,11 +134,11 @@ class Communication (FileManager):
 
 
 
-    def comment_length(self, dataFolderPath,user_name):
+    def comment_length(self, user_name, issue_comments, commit_authored_comments):
         '''
         This function returns a list with the length of all comments the user has writtern
         '''
-        comments= self.user_comments(dataFolderPath, user_name)[1]
+        comments= self.user_comments(user_name, issue_comments, commit_authored_comments)[1]
         comment_length = []
         for issue_id in comments["comments_on_issues"].keys():
             for comment_id in comments["comments_on_issues"][issue_id].keys():
@@ -155,24 +156,24 @@ class Communication (FileManager):
         return comment_length
 
 
-    def number_of_comment_answers(self, dataFolderPath,user_name):
-        comments = self.read_comment_jsons_from_folder(dataFolderPath+"/"+ user_name + "/issue_comments")
+    def number_of_comment_answers(self, user_name, issue_comments):
+        #issue_comments = self.read_comment_jsons_from_folder(dataFolderPath+"/"+ user_name + "/issue_comments")
         answers_count_list = []
         
-        for issue_id in comments.keys():
-            for item in range(len(comments[issue_id])):
-                if comments[issue_id][item]["user"]["login"]== user_name:
-                    date = datetime.datetime.strptime(comments[issue_id][item]["created_at"],'%Y-%m-%dT%H:%M:%SZ')
+        for issue_id in issue_comments.keys():
+            for item in range(len(issue_comments[issue_id])):
+                if issue_comments[issue_id][item]["user"]["login"]== user_name:
+                    date = datetime.datetime.strptime(issue_comments[issue_id][item]["created_at"],'%Y-%m-%dT%H:%M:%SZ')
                     counter = 0
-                    for item in range(len(comments[issue_id])):
-                        comment_dates = datetime.datetime.strptime(comments[issue_id][item]["created_at"],'%Y-%m-%dT%H:%M:%SZ')
+                    for item in range(len(issue_comments[issue_id])):
+                        comment_dates = datetime.datetime.strptime(issue_comments[issue_id][item]["created_at"],'%Y-%m-%dT%H:%M:%SZ')
                         if comment_dates>date:
                             counter = counter + 1
                     answers_count_list.append(counter)
                 
         return  answers_count_list
 
-    def comment_reactions(self, dataFolderPath, user_name):
+    def comment_reactions(self, dataFolderPath, user_name, issue_comments, commit_authored_comments, commit_committed_comments):
 
         '''
         This functions returns a dictionary with keys the d.
@@ -180,7 +181,7 @@ class Communication (FileManager):
         '''
         #remember it needs special header
         ghd = GithubDownloader(GitHubAuthToken)
-        list_url = self.user_comments(dataFolderPath, user_name)[0]
+        list_url = self.user_comments(user_name, issue_comments, commit_authored_comments)[0]
         reactions_detailed = {}
         reactions_count = {}
         headers = {}
