@@ -37,6 +37,22 @@ class Project(dict):
 		:param stats: the stats to be added to the repository.
 		"""
 		self["user_stats"] = user_stats
+	
+	def user_dataset_exists(self):
+		"""
+		Checks if the stats of the project exist.
+
+		:returns: True if the project stats exist, or False otherwise.
+		"""
+		return bool(self["user_dataset"])
+
+	def add_user_dataset(self, user_dataset):
+		"""
+		Adds the stats of the repository.
+
+		:param stats: the stats to be added to the repository.
+		"""
+		self["user_dataset"] = user_dataset
 
 	def user_repo_exists(self, user_repo):
 		"""

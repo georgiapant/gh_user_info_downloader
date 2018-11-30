@@ -22,6 +22,8 @@ class DBManager(FileManager):
 		:param user_name: the name of the repository to be written to disk.
 		"""
 		rootfolder = os.path.join(dataFolderPath, user_name)
+		self.create_folder_if_it_does_not_exist(os.path.join(dataFolderPath, "datasets"))
+		
 		self.create_folder_if_it_does_not_exist(rootfolder)
 		self.create_folder_if_it_does_not_exist(os.path.join(rootfolder, "user_repo"))
 		self.create_folder_if_it_does_not_exist(os.path.join(rootfolder, "commit_authored"))
@@ -74,6 +76,7 @@ class DBManager(FileManager):
 			rootfolder = os.path.join(dataFolderPath, user_name)
 			self.write_json_to_file(os.path.join(rootfolder, "use_info.json"), project["user_info"])
 			self.write_json_to_file(os.path.join(rootfolder, "user_stats.json"), project["user_stats"])
+			self.write_json_to_file(os.path.join(dataFolderPath,"datasets", user_name+"_stats.json"), project["user_dataset"])
 			
 
 			for user_repo in project["user_repo"].values():
@@ -133,6 +136,17 @@ class DBManager(FileManager):
 		if always_write_to_disk:
 			rootfolder = os.path.join(dataFolderPath, user_name)
 			self.write_json_to_file(os.path.join(rootfolder, "user_stats.json"), user_stats)
+	
+	def write_project_user_dataset_to_disk(self, user_name, user_dataset):
+		"""
+		Writes the stats of a repository to disk.
+
+		:param repo_name: the name of the repository.
+		:param stats: the stats to be written to disk.
+		"""
+		if always_write_to_disk:
+			rootfolder = os.path.join(dataFolderPath)
+			self.write_json_to_file(os.path.join(rootfolder,"datasets", user_name+"_stats.json"), user_dataset)
 
 	def write_project_user_repo_to_disk(self, user_name, user_repo):
 		"""
