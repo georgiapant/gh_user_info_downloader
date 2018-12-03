@@ -53,18 +53,7 @@ def create_dataset(user_address):
 
 	db.initialize_write_to_disk(user_name)
 	#initialising all needed variables
-	'''
-	commit_committed = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_committed","sha")
-	commit_authored = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_authored","sha")
-	issues_authored = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_authored", "id")
-	issues_assigned = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_assigned", "id")
-	issues_commented = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_commented", "id")
-	issues_mentions = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_mentions", "id")
-	issues_owned = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_owned", "id")
-	issue_comments = fm.read_comment_jsons_from_folder(dataFolderPath+"/"+ user_name + "/issue_comments")
-	commit_authored_comments=fm.read_comment_jsons_from_folder(dataFolderPath+"/"+ user_name + "/commit_comments")
-	commit_committed_comments = fm.read_comment_jsons_from_folder(dataFolderPath+"/"+ user_name + "/commit_comments")
-	'''
+	
 	user_stats_initial = project["user_stats"]
 	commit_committed = project["commit_committed"]
 	commit_authored = project["commit_authored"]
@@ -85,39 +74,7 @@ def create_dataset(user_address):
 
 		for key in user_stats_initial.keys():
 			user_dataset[key] = user_stats_initial[key]
-		'''
-		user_dataset["repos_contributed"] = get_number_of(ghd, user_api_address, "repos") #including the forked ones
-		lg.step_action()
-		user_dataset["followers"] = get_number_of(ghd, user_api_address, "followers")
-		lg.step_action()
-		user_dataset["following"] = get_number_of(ghd, user_api_address, "following")
-		lg.step_action()
-		user_dataset["starred"] = get_number_of(ghd, user_api_address, "starred")
-		lg.step_action()
-		user_dataset["organisations"] = get_number_of(ghd, user_api_address, "orgs")
-		lg.step_action()
-		user_dataset["events"] = get_number_of(ghd, user_api_address, "events")
-		lg.step_action()
-		user_dataset["received_event"] = get_number_of(ghd, user_api_address, "received_event")
-		lg.step_action()
-		user_dataset["total_commits_authored"] = get_total_count(ghd, user_name, 'commits?q=author:')
-		lg.step_action()
-		user_dataset["total_commits_committed"] = get_total_count(ghd, user_name, 'commits?q=committer:')
-		lg.step_action()
-		user_dataset["total_issues_assigned_to_the_user"] = get_total_count(ghd, user_name, 'issues?q=assignee:')
-		lg.step_action()
-		user_dataset["total_issues_created/authored_by_the_user"] = get_total_count(ghd, user_name, 'issues?q=author:')
-		lg.step_action()
-		user_dataset["total_issues_mentions user"] = get_total_count(ghd, user_name, 'issues?q=mentions:')
-		lg.step_action()
-		user_dataset["total_issues_commented by user"] = get_total_count(ghd, user_name, 'issues?q=commenter:')
-		lg.step_action()
-		user_dataset["total_issues_owned by user"] = get_total_count(ghd, user_name, 'issues?q=user:')
-		lg.step_action()
-		user_dataset["repositories_owned"] = get_total_count(ghd, user_name, 'repositories?q=user:') #doesn't include the forked ones
-		lg.step_action()
-		'''
-
+		
 		user_dataset["amount_of_activities_done_per_day_of_the_week"] = productivity.contribution_days(dataFolderPath,user_name, commit_committed, commit_authored, issues_authored, issues_assigned, issue_comments, commit_authored_comments) 
 		lg.step_action()
 

@@ -183,9 +183,11 @@ def download_information(user_address):
 				if not project.issue_mentions_exists(issue_mentions):
 					if download_issues_mentions_full:
 						issue_mentions = ghd.download_object(issue_mentions["url"])
-						
-					project.add_issue_mentions(issue_mentions)
-					db.write_project_issue_mentions_to_disk(user_name, issue_mentions)
+					try:	
+						project.add_issue_mentions(issue_mentions)
+						db.write_project_issue_mentions_to_disk(user_name, issue_mentions)
+					except:
+						continue
 				lg.step_action()
 			lg.end_action()	
 
