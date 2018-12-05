@@ -10,8 +10,8 @@ import requests
 from dateutil.relativedelta import relativedelta
 
 
-fm = FileManager()
-#ghd = GithubDownloader(GitHubAuthToken)
+# fm = FileManager()
+# #ghd = GithubDownloader(GitHubAuthToken)
 # user_name = 'nbriz'
 # dataFolderPath = '/Users/georgia/Desktop'
 
@@ -42,10 +42,10 @@ def response_time_to_comments_mentioned(user_name, issues_mentions, issue_commen
 
     return  response_times
 
-'''
-x= response_time_to_comments_mentioned(user_name, issues_mentions, issue_comments)
-fm.write_json_to_file(dataFolderPath + "/" + user_name +"/response_time_to_comments_mentioned.json", x) 
-'''
+
+# x= response_time_to_comments_mentioned(user_name, issues_mentions, issue_comments)
+# fm.write_json_to_file(dataFolderPath + "/" + user_name +"/response_time_to_comments_mentioned.json", x) 
+
 
 
 

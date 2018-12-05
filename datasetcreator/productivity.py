@@ -139,8 +139,8 @@ class Productivity(FileManager,GithubDownloader):
         activities_per_day = {}
         count_activities_per_day = []
         freq_dict = issue_commits_freq
-        activities_per_day= freq_dict["committs_per_day"]
-        issues = freq_dict["issues_per_day"]
+        activities_per_day= freq_dict[0]["committs_per_day"]
+        issues = freq_dict[0]["issues_per_day"]
 
         for key in issues.keys():
             if key in activities_per_day.keys():

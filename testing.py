@@ -38,6 +38,7 @@ class Test(Databases):
         issue_ids = []
         closed_issues_count = 0 #total amount of issues closed by the user
         closed_bugs_count = 0 #total amount of issues identified as bugs closed by the user
+        bugs_per_day = {}
 
         for issue_id in issues_authored.keys():
             if bool(issues_authored[issue_id]["closed_at"]) and issues_authored[issue_id]["closed_by"]["login"]== user_name:
@@ -47,6 +48,14 @@ class Test(Databases):
                     for item in range(len(issues_authored[issue_id]["labels"])):
                         if any(word in issues_authored[issue_id]["labels"][item]["name"] for word in self.keywords_db()[1]):                    
                             closed_bugs_count += 1
+                            date_str = issues_authored[issue_id]["closed_at"]
+                            date = date_str.split('T')
+                            try:
+                                bugs_per_day[date[0]] = bugs_per_day[date[0]] + 1
+                            except:
+                                bugs_per_day[date[0]] = 1
+                            
+                            
         
         for issue_id in issues_assigned.keys():
             if issue_id not in issue_ids:
@@ -57,6 +66,12 @@ class Test(Databases):
                         for item in range(len(issues_assigned[issue_id]["labels"])):
                             if any(word in issues_assigned[issue_id]["labels"][item]["name"] for word in self.keywords_db()[1]): 
                                 closed_bugs_count += 1
+                                date_str = issues_authored[issue_id]["closed_at"]
+                                date = date_str.split('T')
+                                try:
+                                    bugs_per_day[date[0]] = bugs_per_day[date[0]] + 1
+                                except:
+                                    bugs_per_day[date[0]] = 1
 
         for issue_id in issues_commented.keys():
             if issue_id not in issue_ids:
@@ -67,6 +82,12 @@ class Test(Databases):
                         for item in range(len(issues_commented[issue_id]["labels"])): 
                             if any(word in issues_commented[issue_id]["labels"][item]["name"] for word in self.keywords_db()[1]): 
                                 closed_bugs_count += 1
+                                date_str = issues_authored[issue_id]["closed_at"]
+                                date = date_str.split('T')
+                                try:
+                                    bugs_per_day[date[0]] = bugs_per_day[date[0]] + 1
+                                except:
+                                    bugs_per_day[date[0]] = 1
 
         for issue_id in issues_mentions.keys():
             if issue_id not in issue_ids:
@@ -77,6 +98,12 @@ class Test(Databases):
                         for item in range(len(issues_mentions[issue_id]["labels"])):
                             if any(word in issues_mentions[issue_id]["labels"][item]["name"] for word in self.keywords_db()[1]): 
                                 closed_bugs_count += 1
+                                date_str = issues_authored[issue_id]["closed_at"]
+                                date = date_str.split('T')
+                                try:
+                                    bugs_per_day[date[0]] = bugs_per_day[date[0]] + 1
+                                except:
+                                    bugs_per_day[date[0]] = 1
 
         for issue_id in issues_owned.keys():
             if issue_id not in issue_ids:
@@ -87,8 +114,14 @@ class Test(Databases):
                         for item in range(len(issues_owned[issue_id]["labels"])):                        
                             if any(word in issues_owned[issue_id]["labels"][item]["name"] for word in self.keywords_db()[1]): 
                                 closed_bugs_count += 1
+                                date_str = issues_authored[issue_id]["closed_at"]
+                                date = date_str.split('T')
+                                try:
+                                    bugs_per_day[date[0]] = bugs_per_day[date[0]] + 1
+                                except:
+                                    bugs_per_day[date[0]] = 1
 
-        return closed_bugs_count, closed_issues_count
+        return closed_bugs_count, closed_issues_count, bugs_per_day
 
     def test_comments(self, user_name, issue_comments, commit_authored_comments):
         '''
@@ -147,9 +180,18 @@ class Test(Databases):
 
         return test_cases
 
-'''
+from datamanager.filemanager import FileManager
 dataFolderPath = '/Users/georgia/Desktop'
-x = add_test_case(dataFolderPath,user_name)
-print(x)
-'''
+user_name = 'nbriz'
+fm= FileManager()
+test = Test()
+
+issues_authored = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_authored", "id")
+issues_assigned = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_assigned", "id")
+issues_commented = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_commented", "id")
+issues_mentions = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_mentions", "id")
+issues_owned = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_owned", "id")
+x = test.closed_issues(user_name,issues_authored,issues_assigned, issues_commented,issues_mentions, issues_owned)
+fm.write_json_to_file(dataFolderPath + "/" + user_name +"/closed_issues.json", x) 
+
 

@@ -1,5 +1,5 @@
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 def additions_deletions_stats(data):
     '''
@@ -72,17 +72,22 @@ def to_day_hour_min_sec(seconds):
     y =("%d:%d:%d:%d" %((datetime(1,1,1) + timedelta(seconds=seconds)).day-1, (datetime(1,1,1) + timedelta(seconds=seconds)).hour, (datetime(1,1,1) + timedelta(seconds=seconds)).minute, (datetime(1,1,1) + timedelta(seconds=seconds)).second))
     return y
     
-'''
-pr = Productivity(dataFolderPath, user_name)
-fm = FileManager()
-x = pr.create_close_issue_diff(user_name)
-fm.write_json_to_file(dataFolderPath + "/" + user_name +"/new_create_close_issue_diff!!!!.json", x) 
-'''
-#x = additions_deletions_stats(data)
-#y = additions_deletions_stats(data1)
-#z = x.join(y)
-#print(list(x.columns))
-#print(z)
-#final_df.to_json() #transforms the dataframe to json. final_df.to_dict() does the same to dictionary
+import time
+def activities_per_week(data):
+    '''
+    Data should be a dictionary of date,activity - key, value pairs
+    '''
+    per_week = {}
+    for key in data.keys():
+        date_str= datetime.strptime(key, '%Y-%m-%d')        
+        year,week= datetime.date(date_str).isocalendar()[:2]
+        year_week = str(year) + "_" + str(week)
+        if year_week in per_week.keys():   
+            per_week[year_week] = per_week[year_week] + data[key]        
+        else:
+            per_week[year_week] = data[key]
+    return per_week
+
+
 
 
