@@ -78,9 +78,9 @@ def create_dataset(user_address):
 		user_dataset["amount_of_activities_done_per_day_of_the_week"] = productivity.contribution_days(dataFolderPath,user_name, commit_committed, commit_authored, issues_authored, issues_assigned, issue_comments, commit_authored_comments) 
 		lg.step_action()
 
-		issues_commits_freq_dict, list_count_issues_freq, list_count_commits_freq  = productivity.issue_commits_freq(commit_authored, issues_authored)
+		issues_commits_freq_dict, (list_count_issues_freq, list_count_commits_freq)  = productivity.issue_commits_freq(commit_authored, issues_authored)
 		lg.step_action()
-		activities_frequency = productivity.activities_freq(dataFolderPath,user_name)[1]
+		activities_frequency = productivity.activities_freq(issues_commits_freq_dict)[1]
 		lg.step_action()
 		projects_per_day = productivity.projects_per_day(commit_authored, issues_authored)[1]
 		lg.step_action()
