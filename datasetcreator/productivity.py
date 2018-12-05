@@ -94,7 +94,7 @@ class Productivity(FileManager,GithubDownloader):
         
         return days_contribution
 
-    def activities_frequency(self,  commit_authored, issues_authored): #committs per day, issues per day
+    def issue_commits_freq(self,  commit_authored, issues_authored): #committs per day, issues per day
         '''
         This function shows the frequency of commits authored and issues authored by the user per day
 
@@ -103,7 +103,7 @@ class Productivity(FileManager,GithubDownloader):
         
         committs_per_day = {}
         issues_per_day = {}
-        activities_freq = {}
+        issue_commits_freq = {}
         count_issues = []
         count_commits = []
 
@@ -123,17 +123,36 @@ class Productivity(FileManager,GithubDownloader):
             except:
                 issues_per_day[date[0]] = 1
         
-        activities_freq["issues_per_day"] = issues_per_day
-        activities_freq["committs_per_day"] = committs_per_day
+        issue_commits_freq["issues_per_day"] = issues_per_day
+        issue_commits_freq["committs_per_day"] = committs_per_day
 
-        for key in activities_freq["issues_per_day"].keys():
-        	count_issues.append(activities_freq["issues_per_day"][key])
+        for key in issue_commits_freq["issues_per_day"].keys():
+        	count_issues.append(issue_commits_freq["issues_per_day"][key])
 
-        for key in activities_freq["committs_per_day"].keys():
-        	count_commits.append(activities_freq["committs_per_day"][key])
+        for key in issue_commits_freq["committs_per_day"].keys():
+        	count_commits.append(issue_commits_freq["committs_per_day"][key])
 
         issues_commits = (count_issues, count_commits)
-        return activities_freq, issues_commits
+        return issue_commits_freq, issues_commits
+    
+    def activities_freq(self,issue_commits_freq):
+        activities_per_day = {}
+        count_activities_per_day = []
+        freq_dict = issue_commits_freq
+        activities_per_day= freq_dict["committs_per_day"]
+        issues = freq_dict["issues_per_day"]
+
+        for key in issues.keys():
+            if key in activities_per_day.keys():
+                activities_per_day[key] = activities_per_day[key]+issues[key]
+            else:
+                activities_per_day[key] = issues[key]
+        # print(type(activities_per_day.keys()))
+        for key in activities_per_day.keys():
+            count_activities_per_day.append(activities_per_day[key])
+
+        return activities_per_day, count_activities_per_day
+
 
     def create_close_issue_diff(self,user_name, issues_authored):
         '''
@@ -391,15 +410,23 @@ class Productivity(FileManager,GithubDownloader):
         	count.append(projects_per_day[key]["count"])
 
         return  projects_per_day, count
-'''
-user_name = 'nbriz'
-pr = Productivity(dataFolderPath, user_name)
-fm= FileManager()
-test = pr.projects_per_day(dataFolderPath,user_name)
-print(test)
 
-fm.write_json_to_file(dataFolderPath + "/" + user_name +"/PROJECTS_PER_DAY!!!!.json", test) 
-'''
+# user_name = 'nbriz'
+# dataFolderPath = '/Users/georgia/Desktop'
+# pr = Productivity(GitHubAuthToken)
+# fm= FileManager()
+
+# commit_authored=fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_authored","sha")
+# issues_authored= fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_authored", "id")
+# x = pr.issue_commits_freq(commit_authored,issues_authored)
+# y = pr.activities_freq(x)
+# print(y)
+
+# test = pr.projects_per_day(dataFolderPath,user_name)
+# print(test)
+
+# fm.write_json_to_file(dataFolderPath + "/" + user_name +"/issue_commits_freq.json", x) 
+
 #test1 = pull_merge_diff(dataFolderPath,user_name)[1]
 #fm.write_json_to_file(dataFolderPath + "/" + user_name +"/pull_requests.json", test1) 
 #print(test) 

@@ -78,10 +78,9 @@ def create_dataset(user_address):
 		user_dataset["amount_of_activities_done_per_day_of_the_week"] = productivity.contribution_days(dataFolderPath,user_name, commit_committed, commit_authored, issues_authored, issues_assigned, issue_comments, commit_authored_comments) 
 		lg.step_action()
 
-		#user_dataset["activities_frequency"] = list_stats(productivity.activities_frequency(dataFolderPath,user_name),['activities_frequency'])
-		#lg.step_action()
-	
-		list_count_issues_freq, list_count_commits_freq  = productivity.activities_frequency(commit_authored, issues_authored)[1]
+		issues_commits_freq_dict, list_count_issues_freq, list_count_commits_freq  = productivity.issue_commits_freq(commit_authored, issues_authored)
+		lg.step_action()
+		activities_frequency = productivity.activities_freq(dataFolderPath,user_name)[1]
 		lg.step_action()
 		projects_per_day = productivity.projects_per_day(commit_authored, issues_authored)[1]
 		lg.step_action()
@@ -92,12 +91,13 @@ def create_dataset(user_address):
 		amount_of_files_changed_in_a_commit = commits.files_in_commits(commit_authored)
 		lg.step_action()
 
-		total_list.extend((list_count_commits_freq,list_count_issues_freq, projects_per_day, comment_length, number_of_comment_answers, amount_of_files_changed_in_a_commit))
-		names = ['commits_frequency', 'issues_frequency', 'projects_per_day','comment_length', 'number_of_comment_answers','amount_of_files_changed_in_a_commit']
+		total_list.extend((list_count_commits_freq,list_count_issues_freq, activities_frequency, projects_per_day, comment_length, number_of_comment_answers, amount_of_files_changed_in_a_commit))
+		names = ['commits_frequency', 'issues_frequency','activities_frequency' 'projects_per_day','comment_length', 'number_of_comment_answers','amount_of_files_changed_in_a_commit']
 		out = list_stats(total_list, names)
 
 		user_dataset["commits_frequency"] = out['commits_frequency'].to_dict()
 		user_dataset["issues_frequency"] = out['issues_frequency'].to_dict()
+		user_dataset["activities_frequency"] = out['activities_frequency'].to_dict()
 		user_dataset["projects_per_day"] = out['projects_per_day'].to_dict()
 		user_dataset["comment_length"] = out['comment_length'].to_dict()
 		user_dataset["number_of_comment_answers"] = out['number_of_comment_answers'].to_dict()
