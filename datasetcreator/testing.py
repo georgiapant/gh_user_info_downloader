@@ -5,7 +5,7 @@ import re
 from properties import (GitHubAuthToken, dataFolderPath, packageFolderPath)
 sys.path.insert(0, packageFolderPath) 
 from dateutil.relativedelta import relativedelta
-#from datamanager.filemanager import FileManager
+from datamanager.filemanager import FileManager
 from datasetcreator.communication import Communication
 #from downloader.githubdownloader import GithubDownloader
 from datasetcreator.dbs import Databases
@@ -41,7 +41,7 @@ class Test(Databases):
         bugs_per_day = {}
 
         for issue_id in issues_authored.keys():
-            if bool(issues_authored[issue_id]["closed_at"]) and issues_authored[issue_id]["closed_by"]["login"]== user_name:
+            if bool(issues_authored[issue_id]["closed_at"]) and bool(issues_authored[issue_id]["closed_by"]) and issues_authored[issue_id]["closed_by"]["login"]== user_name:
                 issue_ids.append(issue_id)
                 closed_issues_count += 1
                 if bool(issues_authored[issue_id]["labels"]):                 
@@ -59,62 +59,68 @@ class Test(Databases):
         
         for issue_id in issues_assigned.keys():
             if issue_id not in issue_ids:
-                if bool(issues_assigned[issue_id]["closed_at"]) and issues_assigned[issue_id]["closed_by"]["login"]== user_name:
+                if bool(issues_assigned[issue_id]["closed_at"]) and bool(issues_assigned[issue_id]["closed_by"]) and issues_assigned[issue_id]["closed_by"]["login"]== user_name:
                     issue_ids.append(issue_id)
                     closed_issues_count += 1
                     if bool(issues_assigned[issue_id]["labels"]): 
                         for item in range(len(issues_assigned[issue_id]["labels"])):
                             if any(word in issues_assigned[issue_id]["labels"][item]["name"] for word in self.keywords_db()[1]): 
                                 closed_bugs_count += 1
-                                date_str = issues_authored[issue_id]["closed_at"]
+                                date_str = issues_assigned[issue_id]["closed_at"]
                                 date = date_str.split('T')
                                 try:
                                     bugs_per_day[date[0]] = bugs_per_day[date[0]] + 1
                                 except:
                                     bugs_per_day[date[0]] = 1
-
+        # fm = FileManager()
+        # fm.write_json_to_file(dataFolderPath + "/" + user_name +"/wtf.json", issues_commented)
         for issue_id in issues_commented.keys():
             if issue_id not in issue_ids:
-                if bool(issues_commented[issue_id]["closed_at"]) and issues_commented[issue_id]["closed_by"]["login"]== user_name:
+                # print(issue_id)
+                if (bool(issues_commented[issue_id]["closed_at"]) and bool(issues_commented[issue_id]["closed_by"]) and issues_commented[issue_id]["closed_by"]["login"]== user_name):
                     issue_ids.append(issue_id)
                     closed_issues_count += 1
                     if bool(issues_commented[issue_id]["labels"]):                     
                         for item in range(len(issues_commented[issue_id]["labels"])): 
                             if any(word in issues_commented[issue_id]["labels"][item]["name"] for word in self.keywords_db()[1]): 
                                 closed_bugs_count += 1
-                                date_str = issues_authored[issue_id]["closed_at"]
+                                # print(issues_commented[issue_id])
+                                date_str = issues_commented[issue_id]["closed_at"]
                                 date = date_str.split('T')
                                 try:
                                     bugs_per_day[date[0]] = bugs_per_day[date[0]] + 1
                                 except:
                                     bugs_per_day[date[0]] = 1
+            
+                                
 
         for issue_id in issues_mentions.keys():
             if issue_id not in issue_ids:
-                if bool(issues_mentions[issue_id]["closed_at"]) and issues_mentions[issue_id]["closed_by"]["login"]== user_name:
+                if bool(issues_mentions[issue_id]["closed_at"]) and bool(issues_mentions[issue_id]["closed_by"]) and issues_mentions[issue_id]["closed_by"]["login"]== user_name:
                     issue_ids.append(issue_id)
                     closed_issues_count += 1
                     if bool(issues_mentions[issue_id]["labels"]):
                         for item in range(len(issues_mentions[issue_id]["labels"])):
                             if any(word in issues_mentions[issue_id]["labels"][item]["name"] for word in self.keywords_db()[1]): 
                                 closed_bugs_count += 1
-                                date_str = issues_authored[issue_id]["closed_at"]
+                                date_str = issues_mentions[issue_id]["closed_at"]
                                 date = date_str.split('T')
                                 try:
                                     bugs_per_day[date[0]] = bugs_per_day[date[0]] + 1
                                 except:
                                     bugs_per_day[date[0]] = 1
-
+        # print(issues_owned)
         for issue_id in issues_owned.keys():
             if issue_id not in issue_ids:
-                if bool(issues_owned[issue_id]["closed_at"]) and issues_owned[issue_id]["closed_by"]["login"]== user_name:
+                # print(type(bool(issues_owned[issue_id]["closed_at"]) and issues_owned[issue_id]["closed_by"]["login"]== user_name))
+                if bool(issues_owned[issue_id]["closed_at"]) and bool(issues_owned[issue_id]["closed_by"]) and issues_owned[issue_id]["closed_by"]["login"]== user_name:
                     issue_ids.append(issue_id)
                     closed_issues_count += 1
                     if bool(issues_owned[issue_id]["labels"]): 
                         for item in range(len(issues_owned[issue_id]["labels"])):                        
                             if any(word in issues_owned[issue_id]["labels"][item]["name"] for word in self.keywords_db()[1]): 
                                 closed_bugs_count += 1
-                                date_str = issues_authored[issue_id]["closed_at"]
+                                date_str = issues_owned[issue_id]["closed_at"]
                                 date = date_str.split('T')
                                 try:
                                     bugs_per_day[date[0]] = bugs_per_day[date[0]] + 1
@@ -153,8 +159,12 @@ class Test(Databases):
                 total_comment_count += 1
                 if any(word in committ_comments[committ_sha][sub_id]["body"] for word in self.keywords_db()[2]):
                     test_comments_count += 1
-                if bool(re.findall(reg, issue_comments[issue_id][sub_id]["body"])): #can get even the issue numbers if needed by removing the bool
-                    contains_issue_num += 1
+                # print(committ_comments[committ_sha])
+                try:
+                    if bool(re.findall(reg, committ_comments[committ_sha][sub_id]["body"])): #can get even the issue numbers if needed by removing the bool
+                        contains_issue_num += 1
+                except KeyError:
+                    continue
                 
         test_comments_out = (test_comments_count, contains_issue_num)
         return test_comments_out, total_comment_count
@@ -180,18 +190,18 @@ class Test(Databases):
 
         return test_cases
 
-from datamanager.filemanager import FileManager
-dataFolderPath = '/Users/georgia/Desktop'
-user_name = 'nbriz'
-fm= FileManager()
-test = Test()
+# from datamanager.filemanager import FileManager
+# dataFolderPath = '/Users/georgia/Desktop'
+# user_name = 'nbriz'
+# fm= FileManager()
+# test = Test()
 
-issues_authored = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_authored", "id")
-issues_assigned = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_assigned", "id")
-issues_commented = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_commented", "id")
-issues_mentions = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_mentions", "id")
-issues_owned = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_owned", "id")
-x = test.closed_issues(user_name,issues_authored,issues_assigned, issues_commented,issues_mentions, issues_owned)
-fm.write_json_to_file(dataFolderPath + "/" + user_name +"/closed_issues.json", x) 
+# issues_authored = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_authored", "id")
+# issues_assigned = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_assigned", "id")
+# issues_commented = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_commented", "id")
+# issues_mentions = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_mentions", "id")
+# issues_owned = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_owned", "id")
+# x = test.closed_issues(user_name,issues_authored,issues_assigned, issues_commented,issues_mentions, issues_owned)
+# fm.write_json_to_file(dataFolderPath + "/" + user_name +"/closed_issues.json", x) 
 
 

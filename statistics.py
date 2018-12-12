@@ -16,6 +16,7 @@ from datasetcreator.testing import Test
 from datasetcreator.commits import Commits
 from datasetcreator.operational import Operational
 from analysis import list_stats, additions_deletions_stats, time_diff
+from list_of_repos_urls import List_of_repos_urls
 import pandas
 import time
 
@@ -41,17 +42,20 @@ pp = Project_preferences()
 commits = Commits()
 testing = Test()
 operational = Operational()
+ls = List_of_repos_urls()
 
-start_time = time.time()
+
 
 def create_dataset(user_address):
+	start_time = time.time()
 
 	#user_api_address = "https://api.github.com/users/" + '/'.join(user_address.split('/')[-1:])
 	user_name = '_'.join(user_address.split('/')[-1:])
-
+	
+	db.initialize_write_to_disk(user_name)
 	project = db.read_project_from_disk(user_name)
 
-	db.initialize_write_to_disk(user_name)
+	
 	#initialising all needed variables
 	
 	user_stats_initial = project["user_stats"]
@@ -64,9 +68,13 @@ def create_dataset(user_address):
 	issues_owned = project["issues_owned"]
 	issue_comments = project["issue_comments"]
 	commit_authored_comments = project["commit_comments"]
-	print('here!')
+	# print('here!')
+	
+	list_of_repos = ls.get_list_of_repos_urls(dataFolderPath, user_name, issues_assigned, issues_authored, issues_commented, issues_mentions, issues_owned, commit_authored, commit_committed)
+	fm.write_json_to_file(dataFolderPath + "/" + user_name +"/list_of_repos.json", list_of_repos)
 	
 	try:
+		lg.log_action("Creating dataset of " + user_name)
 		lg.start_action("Retrieving user statistics ...", 30)
 
 		user_dataset = {}
@@ -75,13 +83,11 @@ def create_dataset(user_address):
 		for key in user_stats_initial.keys():
 			user_dataset[key] = user_stats_initial[key]
 		
-		user_dataset["amount_of_activities_done_per_day_of_the_week"] = productivity.contribution_days(dataFolderPath,user_name, commit_committed, commit_authored, issues_authored, issues_assigned, issue_comments, commit_authored_comments) 
+		
+		(list_count_issues_freq, list_count_commits_freq, list_count_comments_freq, list_count_activities_freq), activiries_freq  = productivity.issue_commits_activities_freq(user_name, commit_committed, commit_authored, issues_authored, issue_comments, commit_authored_comments)[1:3]
 		lg.step_action()
-
-		issues_commits_freq_dict, (list_count_issues_freq, list_count_commits_freq)  = productivity.issue_commits_freq(commit_authored, issues_authored)
-		lg.step_action()
-		activities_frequency = productivity.activities_freq(issues_commits_freq_dict)[1]
-		lg.step_action()
+		# activities_frequency = productivity.activities_freq(issues_commits_freq_dict)[1]
+		# lg.step_action()
 		projects_per_day = productivity.projects_per_day(commit_authored, issues_authored)[1]
 		lg.step_action()
 		comment_length = cm.comment_length(user_name, issue_comments, commit_authored_comments)
@@ -91,17 +97,23 @@ def create_dataset(user_address):
 		amount_of_files_changed_in_a_commit = commits.files_in_commits(commit_authored)
 		lg.step_action()
 
-		total_list.extend((list_count_commits_freq,list_count_issues_freq, activities_frequency, projects_per_day, comment_length, number_of_comment_answers, amount_of_files_changed_in_a_commit))
-		names = ['commits_frequency', 'issues_frequency','activities_frequency' 'projects_per_day','comment_length', 'number_of_comment_answers','amount_of_files_changed_in_a_commit']
+		total_list.extend((list_count_commits_freq,list_count_issues_freq, list_count_comments_freq, list_count_activities_freq, projects_per_day, comment_length, number_of_comment_answers, amount_of_files_changed_in_a_commit))
+		# print(len(total_list))
+		names = ['commits_frequency', 'issues_frequency','comments_frequency', 'activities_frequency' ,'projects_per_day','comment_length', 'number_of_comment_answers','amount_of_files_changed_in_a_commit']
 		out = list_stats(total_list, names)
 
 		user_dataset["commits_frequency"] = out['commits_frequency'].to_dict()
 		user_dataset["issues_frequency"] = out['issues_frequency'].to_dict()
+		user_dataset["comments_frequency"] = out['comments_frequency'].to_dict()
 		user_dataset["activities_frequency"] = out['activities_frequency'].to_dict()
 		user_dataset["projects_per_day"] = out['projects_per_day'].to_dict()
 		user_dataset["comment_length"] = out['comment_length'].to_dict()
 		user_dataset["number_of_comment_answers"] = out['number_of_comment_answers'].to_dict()
 		user_dataset["amount_of_files_changed_in_a_commit"] = out['amount_of_files_changed_in_a_commit'].to_dict()
+
+		user_dataset["amount_of_activities_done_per_day_of_the_week"] = productivity.contribution_days(activiries_freq)
+		lg.step_action()
+
 		
 		user_dataset["issue_created_by_user_closed_by_user_time_diff"] = time_diff(productivity.create_close_issue_diff(user_name, issues_authored)[0]['create_close_diff']).to_dict()
 		lg.step_action()
@@ -146,7 +158,9 @@ def create_dataset(user_address):
 		lg.step_action()		
 		user_dataset["number_of_comments_with_documentation_keywords"] = operational.documentation_comments( user_name, issue_comments, commit_authored_comments)
 		lg.step_action()
-		user_dataset["amount_of_issues_closed_by_user_with_bug_keyword"], user_dataset["total_amount_of_issues_closed_by_user"] = testing.closed_issues(user_name, issues_authored, issues_assigned, issues_commented, issues_mentions, issues_owned)
+		user_dataset["amount_of_issues_closed_by_user_with_bug_keyword"]= testing.closed_issues(user_name, issues_authored, issues_assigned, issues_commented, issues_mentions, issues_owned)[0]
+		lg.step_action()
+		user_dataset["total_amount_of_issues_closed_by_user"] = testing.closed_issues(user_name, issues_authored, issues_assigned, issues_commented, issues_mentions, issues_owned)[1]
 		lg.step_action()
 		user_dataset["count_of_empty_commit_messages"] = commits.empty_commit_message(commit_committed)
 		lg.step_action()

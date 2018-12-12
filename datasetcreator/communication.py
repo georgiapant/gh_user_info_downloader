@@ -79,9 +79,9 @@ class Communication (FileManager):
                         updated_at = r_dict[item]["updated_at"]
                         body = r_dict[item]["body"] 
                 
-                        comments[element_id]["created_at"]=created_at
-                        comments[element_id]["updated_at"]=updated_at
-                        comments[element_id]["body"]=body  
+                        comments[element_id][r_dict[item]["id"]]["created_at"]=created_at
+                        comments[element_id][r_dict[item]["id"]]["updated_at"]=updated_at
+                        comments[element_id][r_dict[item]["id"]]["body"]=body  
                         if url not in list_url:
                             list_url.append(url)          
                 except IndexError:
@@ -208,10 +208,15 @@ class Communication (FileManager):
         
         return reactions_detailed, reactions_count
 
-'''
-user_name = 'nbriz'
-cm = Communication()
-fm = FileManager()
-test = cm.user_comments(dataFolderPath,user_name)[0]
-fm.write_json_to_file(dataFolderPath + "/" + user_name +"/comment_url_list.json", test) 
-'''        
+
+# user_name = 'nbriz'
+# dataFolderPath = '/Users/georgia/Desktop'
+# fm = FileManager()
+# cm = Communication()
+# commit_authored_comments=fm.read_comment_jsons_from_folder(dataFolderPath+"/"+ user_name + "/commit_comments")
+# issue_comments = fm.read_comment_jsons_from_folder(dataFolderPath+"/"+ user_name + "/issue_comments")
+
+
+# test = cm.user_comments(user_name, issue_comments, commit_authored_comments)[1]
+# fm.write_json_to_file(dataFolderPath + "/" + user_name +"/YOOOOuser_comments.json", test) 
+     

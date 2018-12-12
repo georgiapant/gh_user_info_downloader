@@ -12,13 +12,18 @@ def get_number_of(gdownloader, user_api_address, statistic_type):
 	"""
 	r = gdownloader.download_request(user_api_address + "/" + statistic_type)
 	#print(r.headers)
-	if "link" in r.headers:
-		address = r.headers["link"].split(',')[1].split('<')[1].split('>')[0]
-		data = gdownloader.download_object(address)
-		return 100 * (int(address.split('=')[-1]) - 1) + len(data) if data != None else None		
-	else:
-		data = json.loads(r.text or r.content)
-		return len(data)
+	# data = {}
+	if r.ok:
+		if "link" in r.headers:
+			address = r.headers["link"].split(',')[1].split('<')[1].split('>')[0]
+			data = gdownloader.download_object(address)
+			return 100 * (int(address.split('=')[-1]) - 1) + len(data) if data != None else None		
+		else:
+			try:
+				data = json.loads(r.text or r.content)	
+				return len(data)
+			except:
+				return 0
 
 def read_file_in_lines(filename):
 	"""

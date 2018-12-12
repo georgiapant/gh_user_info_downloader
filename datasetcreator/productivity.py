@@ -35,85 +35,48 @@ class Productivity(FileManager,GithubDownloader):
     '''  
     
     
-    def contribution_days(self,dataFolderPath, user_name, commit_committed, commit_authored, issues_authored, issues_assigned, issue_comments, commit_authored_comments):
-        '''
-        This function takes the days the user made an action. These actions can be: 
-        - a committ committed
-        - a committ authored 
-        - an issue create by the user
-        - an issue closed by the user
-        - a comment made by the user
-        and returns the amount of activities per day of the week
-        '''
-        cm = Communication()
-        weekday = []
-        days_contribution = {} 
-        comments_by_user = cm.user_comments(user_name, issue_comments, commit_authored_comments)[1]
-
-        for element_id in commit_committed.keys():
-            date_str = commit_committed[element_id]["commit"]["committer"]["date"]
-            date = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ') 
-            weekday.append(calendar.day_name[date.weekday()])
-            #print(weekday)
-        
-        for element_id in commit_authored.keys():
-            date_str = commit_authored[element_id]["commit"]["author"]["date"]
-            date = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ') 
-            weekday.append(calendar.day_name[date.weekday()])
-        
-        
-        for element_id in issues_authored.keys():
-            date_str = issues_authored[element_id]["created_at"]
-            date = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ')
-            weekday.append(calendar.day_name[date.weekday()])
-            
-            if bool(issues_authored[element_id]["closed_at"]):
-                if issues_authored[element_id]["closed_by"]["login"] == user_name:
-                    date_str =issues_authored[element_id]["closed_at"]
-                    date = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ')
-                    weekday.append(calendar.day_name[date.weekday()])
-            
-        for issue_id in comments_by_user["comments_on_issues"].keys():
-                for comment_id in comments_by_user["comments_on_issues"][issue_id].keys():
-                    date_str= comments_by_user["comments_on_issues"][issue_id][comment_id]["created_at"]
-                    date = datetime.datetime.strptime(date_str,'%Y-%m-%dT%H:%M:%SZ')
-                    weekday.append(calendar.day_name[date.weekday()])
 
 
-        for issue_id in comments_by_user["commnents_on_committs"].keys():
-                for comment_id in comments_by_user["commnents_on_committs"][issue_id].keys():
-                    date_str= comments_by_user["commnents_on_committs"][issue_id][comment_id]["created_at"]
-                    date = datetime.datetime.strptime(date_str,'%Y-%m-%dT%H:%M:%SZ')
-                    weekday.append(calendar.day_name[date.weekday()])
-        
-        days_contribution["total_days_worked"] = len(weekday)
-        weekday = Counter(weekday)
-
-        for item in weekday.keys():
-            days_contribution[item] = weekday[item]
-        
-        return days_contribution
-
-    def issue_commits_freq(self,  commit_authored, issues_authored): #committs per day, issues per day
+    def issue_commits_activities_freq(self,  user_name, commit_committed, commit_authored, issues_authored, issue_comments, commit_authored_comments): #committs per day, issues per day
         '''
         This function shows the frequency of commits authored and issues authored by the user per day
 
         !!!!Need to combine issues commits in one list and one dict
         '''
-        
+        cm = Communication()
         committs_per_day = {}
         issues_per_day = {}
-        issue_commits_freq = {}
+        comments_per_day = {}
+        activities_per_day = {}
+        issue_commits_comments_freq = {}
+
         count_issues = []
         count_commits = []
+        count_comments = []
+        count_activities_per_day = []
+        commit_ids = []
+        
+        comments_by_user = cm.user_comments(user_name, issue_comments, commit_authored_comments)[1]
 
         for element_id in commit_authored.keys():
+            commit_ids.append(element_id)
             date_str = commit_authored[element_id]["commit"]["author"]["date"]
             date = date_str.split('T')
             try:
                 committs_per_day[date[0]] = committs_per_day[date[0]] + 1
             except:
                 committs_per_day[date[0]] = 1
+
+
+        for element_id in commit_committed.keys():
+            if element_id not in commit_ids:
+                date_str = commit_committed[element_id]["commit"]["author"]["date"]
+                date = date_str.split('T')
+                try:
+                    committs_per_day[date[0]] = committs_per_day[date[0]] + 1
+                except:
+                    committs_per_day[date[0]] = 1
+
         
         for element_id in issues_authored.keys():
             date_str = issues_authored[element_id]["created_at"]
@@ -122,37 +85,99 @@ class Productivity(FileManager,GithubDownloader):
                 issues_per_day[date[0]] = issues_per_day[date[0]] + 1
             except:
                 issues_per_day[date[0]] = 1
+            
+            if bool(issues_authored[element_id]["closed_at"]):
+                if issues_authored[element_id]["closed_by"]["login"] == user_name:
+                    date_str =issues_authored[element_id]["closed_at"]
+                    date = date_str.split('T')
+                    try:
+                        issues_per_day[date[0]] = issues_per_day[date[0]] + 1
+                    except:
+                        issues_per_day[date[0]] = 1
+       
         
-        issue_commits_freq["issues_per_day"] = issues_per_day
-        issue_commits_freq["committs_per_day"] = committs_per_day
+        for issue_id in comments_by_user["comments_on_issues"].keys():
+            for comment_id in comments_by_user["comments_on_issues"][issue_id].keys():
+                try:
+                    date_str= comments_by_user["comments_on_issues"][issue_id][comment_id]["created_at"]
+                    date = date_str.split('T')
+                    try:
+                        comments_per_day[date[0]] = comments_per_day[date[0]] + 1
+                    except:
+                        comments_per_day[date[0]] = 1
 
-        for key in issue_commits_freq["issues_per_day"].keys():
-        	count_issues.append(issue_commits_freq["issues_per_day"][key])
+                except KeyError:
+                    continue
 
-        for key in issue_commits_freq["committs_per_day"].keys():
-        	count_commits.append(issue_commits_freq["committs_per_day"][key])
 
-        issues_commits = (count_issues, count_commits)
-        return issue_commits_freq, issues_commits
-    
-    def activities_freq(self,issue_commits_freq):
-        activities_per_day = {}
-        count_activities_per_day = []
-        freq_dict = issue_commits_freq
-        activities_per_day= freq_dict[0]["committs_per_day"]
-        issues = freq_dict[0]["issues_per_day"]
+        for issue_id in comments_by_user["commnents_on_committs"].keys():
+            for comment_id in comments_by_user["commnents_on_committs"][issue_id].keys():
+                try:
+                    date_str= comments_by_user["commnents_on_committs"][issue_id][comment_id]["created_at"]
+                    date = date_str.split('T')
+                    try:
+                        comments_per_day[date[0]] = comments_per_day[date[0]] + 1
+                    except:
+                        comments_per_day[date[0]] = 1
 
-        for key in issues.keys():
+                except KeyError:
+                    continue
+                
+       
+        issue_commits_comments_freq["issues_per_day"] = issues_per_day
+        issue_commits_comments_freq["committs_per_day"] = committs_per_day
+        issue_commits_comments_freq["comments_per_day"] = comments_per_day
+
+        #make lists out of the dictionaries for processing
+
+        for key in issue_commits_comments_freq["issues_per_day"].keys():
+        	count_issues.append(issue_commits_comments_freq["issues_per_day"][key])
+
+        for key in issue_commits_comments_freq["committs_per_day"].keys():
+        	count_commits.append(issue_commits_comments_freq["committs_per_day"][key])
+        
+        for key in issue_commits_comments_freq["comments_per_day"].keys():
+        	count_comments.append(issue_commits_comments_freq["comments_per_day"][key])
+        
+        #Merging commits per day, issues per day and comments per day to make activities per day
+        
+        activities_per_day = committs_per_day
+
+        for key in issues_per_day.keys():
             if key in activities_per_day.keys():
-                activities_per_day[key] = activities_per_day[key]+issues[key]
+                activities_per_day[key] = activities_per_day[key]+issues_per_day[key]
             else:
-                activities_per_day[key] = issues[key]
-        # print(type(activities_per_day.keys()))
+                activities_per_day[key] = issues_per_day[key]
+
+        for key in comments_per_day.keys():
+            if key in activities_per_day.keys():
+                activities_per_day[key] = activities_per_day[key]+comments_per_day[key]
+            else:
+                activities_per_day[key] = comments_per_day[key]
+        
+       
         for key in activities_per_day.keys():
             count_activities_per_day.append(activities_per_day[key])
 
-        return activities_per_day, count_activities_per_day
 
+        issues_commits_activities_list = (count_issues, count_commits, count_comments, count_activities_per_day)
+        return issue_commits_comments_freq, issues_commits_activities_list, activities_per_day
+    
+    def contribution_days(self, activities_per_day):
+        activities = activities_per_day
+        days_contriburion = {}
+        weekday = []
+        for key in activities.keys():
+            date = datetime.datetime.strptime(key,'%Y-%m-%d')
+            weekday.append(calendar.day_name[date.weekday()])
+
+        days_contriburion["total_days_worked"] = len(weekday)
+        weekday = Counter(weekday)
+
+        for item in weekday.keys():
+            days_contriburion[item] = weekday[item]
+        
+        return days_contriburion
 
     def create_close_issue_diff(self,user_name, issues_authored):
         '''
@@ -410,6 +435,75 @@ class Productivity(FileManager,GithubDownloader):
         	count.append(projects_per_day[key]["count"])
 
         return  projects_per_day, count
+
+    # def contribution_days_old(self,dataFolderPath, user_name, commit_committed, commit_authored, issues_authored, issues_assigned, issue_comments, commit_authored_comments):
+    #     '''
+    #     This function takes the days the user made an action. These actions can be: 
+    #     - a committ committed
+    #     - a committ authored 
+    #     - an issue create by the user
+    #     - an issue closed by the user
+    #     - a comment made by the user
+    #     and returns the amount of activities per day of the week
+    #     '''
+    #     cm = Communication()
+    #     commit_ids = []
+    #     weekday = []
+    #     days_contribution = {} 
+    #     comments_by_user = cm.user_comments(user_name, issue_comments, commit_authored_comments)[1]
+    #     # print(comments_by_user)
+
+    #     for element_id in commit_committed.keys():
+    #         commit_ids.append(element_id)
+    #         date_str = commit_committed[element_id]["commit"]["committer"]["date"]
+    #         date = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ') 
+    #         weekday.append(calendar.day_name[date.weekday()])
+    #         #print(weekday)
+        
+    #     for element_id in commit_authored.keys():
+    #         if element_id not in commit_ids:
+    #             date_str = commit_authored[element_id]["commit"]["author"]["date"]
+    #             date = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ') 
+    #             weekday.append(calendar.day_name[date.weekday()])
+        
+        
+    #     for element_id in issues_authored.keys():
+    #         date_str = issues_authored[element_id]["created_at"]
+    #         date = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ')
+    #         weekday.append(calendar.day_name[date.weekday()])
+            
+    #         if bool(issues_authored[element_id]["closed_at"]):
+    #             if issues_authored[element_id]["closed_by"]["login"] == user_name:
+    #                 date_str =issues_authored[element_id]["closed_at"]
+    #                 date = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ')
+    #                 weekday.append(calendar.day_name[date.weekday()])
+            
+    #     for issue_id in comments_by_user["comments_on_issues"].keys():
+    #         for comment_id in comments_by_user["comments_on_issues"][issue_id].keys():
+    #             try:
+    #                 date_str= comments_by_user["comments_on_issues"][issue_id][comment_id]["created_at"]
+    #                 date = datetime.datetime.strptime(date_str,'%Y-%m-%dT%H:%M:%SZ')
+    #                 weekday.append(calendar.day_name[date.weekday()])
+    #             except KeyError:
+    #                 continue
+
+
+    #     for issue_id in comments_by_user["commnents_on_committs"].keys():
+    #         for comment_id in comments_by_user["commnents_on_committs"][issue_id].keys():
+    #             try:
+    #                 date_str= comments_by_user["commnents_on_committs"][issue_id][comment_id]["created_at"]
+    #                 date = datetime.datetime.strptime(date_str,'%Y-%m-%dT%H:%M:%SZ')
+    #                 weekday.append(calendar.day_name[date.weekday()])
+    #             except KeyError:
+    #                 continue
+            
+    #     days_contribution["total_days_worked"] = len(weekday)
+    #     weekday = Counter(weekday)
+
+    #     for item in weekday.keys():
+    #         days_contribution[item] = weekday[item]
+        
+    #     return days_contribution
 
 # user_name = 'nbriz'
 # dataFolderPath = '/Users/georgia/Desktop'

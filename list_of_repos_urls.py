@@ -13,10 +13,10 @@ class List_of_repos_urls(FileManager):
     
     '''
 
-    def list_of_repos_urls_from_committs(self, dataFolderPath, user_name):
+    def list_of_repos_urls_from_committs(self, commit_authored, commit_committed):
         
-        commit_authored=self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_authored","sha")
-        commit_committed = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_committed","sha")
+        # commit_authored=self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_authored","sha")
+        # commit_committed = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_committed","sha")
 
         list_url = []
         
@@ -32,12 +32,12 @@ class List_of_repos_urls(FileManager):
         
         return list_url
 
-    def list_of_repos_urls_from_issues(self, dataFolderPath, user_name):
-        issues_assigned = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_assigned", "id")
-        issues_authored = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_authored", "id")
-        issues_commented = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_commented", "id")
-        issues_mentions = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_mentions", "id")
-        issues_owned = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_owned", "id")
+    def list_of_repos_urls_from_issues(self, issues_assigned, issues_authored, issues_commented,  issues_mentions, issues_owned):
+        # issues_assigned = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_assigned", "id")
+        # issues_authored = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_authored", "id")
+        # issues_commented = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_commented", "id")
+        # issues_mentions = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_mentions", "id")
+        # issues_owned = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_owned", "id")
 
         list_url = []
 
@@ -90,9 +90,9 @@ class List_of_repos_urls(FileManager):
                 list_url.append(url)
         return list_url
 
-    def get_list_of_repos_urls(self, dataFolderPath, user_name):
-        list1 = self.list_of_repos_urls_from_committs(dataFolderPath,user_name) \
-        +self.list_of_repos_urls_from_issues(dataFolderPath,user_name) \
+    def get_list_of_repos_urls(self, dataFolderPath, user_name, issues_assigned, issues_authored,  issues_commented, issues_mentions, issues_owned, commit_authored, commit_committed):
+        list1 = self.list_of_repos_urls_from_committs(commit_authored, commit_committed) \
+        +self.list_of_repos_urls_from_issues(issues_assigned, issues_authored, issues_commented,  issues_mentions, issues_owned) \
         + self.list_of_repos_urls_from_repos_owned(dataFolderPath, user_name)
         
         final_list = []
