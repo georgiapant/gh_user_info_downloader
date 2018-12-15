@@ -1,7 +1,3 @@
-import sys
-from properties import (GitHubAuthToken, dataFolderPath,  packageFolderPath)
-sys.path.insert(0, packageFolderPath)
-#from datamanager.filemanager import FileManager
 from datasetcreator.dbs import Databases
 from collections import Counter
 from datasetcreator.communication import Communication
@@ -11,14 +7,13 @@ from datasetcreator.communication import Communication
 - comments include words like "document", "documentation" etc
 - commmit licence
 '''
-#user_name = 'nbriz'
-#dataFolderPath = '/Users/georgia/Desktop'
-# = FileManager()
 
 class Operational(Databases):
     
     def documentation_commit(self, commit_authored):
-        #commit_authored=fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_authored","sha")
+        '''
+        This function returns the additions/deletions of files related to documentation such as markdown
+        '''
         fin_dict = {}
         
         doc_list = []
@@ -60,9 +55,3 @@ class Operational(Databases):
                 if any(word in comments["commnents_on_committs"][issue_id][comment_id]["body"] for word in self.keywords_db()[4]):
                     documentation_comments_count += 1
         return documentation_comments_count
-
-'''
-x = documentation_comments(dataFolderPath, user_name)
-fm.write_json_to_file(dataFolderPath + "/" + user_name +"/operational.json", x)
-print(x)
-'''

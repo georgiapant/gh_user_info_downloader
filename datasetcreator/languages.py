@@ -22,6 +22,7 @@ class Languages(FileManager):
         list_of_languages = []
         final_list = []
         languages_dict = {}
+        total_files_committed = 0
         
         for element_id in commit_authored.keys():
             files = commit_authored[element_id]["files"]
@@ -33,11 +34,16 @@ class Languages(FileManager):
                 final_list.append(file_ending)
 
         language_occurance = Counter(final_list)
+
         for item in language_occurance.keys():
             try:
                 languages_dict[dbs.languages_db(item)]= language_occurance[item]
             except KeyError:
                 continue
-        return languages_dict
+
+        for key in languages_dict.keys():
+            total_files_committed += languages_dict[key]
+
+        return languages_dict, total_files_committed
 
    

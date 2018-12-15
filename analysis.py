@@ -2,6 +2,14 @@ import pandas as pd
 from datetime import datetime, timedelta, date
 import time
 
+'''
+This file contains 
+- a function that returns stats for additions/deletions 
+- Stats of lists 
+- processing the time differences from seconds to d:h:m:s
+- transformation of per_day to per_week
+'''
+
 def additions_deletions_stats(data):
     '''
     this function takes any file that has additions, deletions by language/type and returns a dataframe with all basic statistics
@@ -96,61 +104,3 @@ def activities_per_week(data):
         else:
             per_week[year_week] = data[key]
     return per_week
-
-
-#TESTING
-'''
-from datasetcreator.productivity import Productivity
-from datamanager.filemanager import FileManager
-from properties import GitHubAuthToken
-import calendar
-from collections import Counter
-
-pr = Productivity(GitHubAuthToken)
-fm = FileManager()
-dataFolderPath = '/Users/georgia/Desktop'
-user_name = 'nbriz'
-
-commit_committed = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_committed","sha")
-commit_authored=fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_authored","sha")
-issues_authored= fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_authored", "id")
-issues_assigned = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_assigned", "id")
-issue_comments = fm.read_comment_jsons_from_folder(dataFolderPath+ "/" + user_name + "/issue_comments")
-commit_authored_comments = fm.read_comment_jsons_from_folder(dataFolderPath+ "/" + user_name + "/commit_comments")
-
-
-data1, data2, data3, data4= pr.issue_commits_activities_freq(user_name, commit_committed, commit_authored, issues_authored, issue_comments, commit_authored_comments)[1]
-activities_per_day = pr.issue_commits_activities_freq(user_name, commit_committed, commit_authored, issues_authored, issue_comments, commit_authored_comments)[2]
-total_list = []
-total_list.extend((data1,data2,data2, data4))
-names = ["issues", "commits","comments", "total_activities"]
-
-days_contrib = pr.contribution_days(dataFolderPath, user_name, commit_committed, commit_authored, issues_authored, issues_assigned, issue_comments, commit_authored_comments)
-x = list_stats(total_list, names)
-# print(x)
-days_contriburion = {}
-weekday = []
-for key in activities_per_day.keys():
-    date = datetime.strptime(key,'%Y-%m-%d')
-    weekday.append(calendar.day_name[date.weekday()])
-
-days_contriburion["total_days_worked"] = len(weekday)
-weekday = Counter(weekday)
-
-for item in weekday.keys():
-    days_contriburion[item] = weekday[item]
-
-
-
-user_dataset = {}
-
-user_dataset["commits_frequency"] = x['commits'].to_dict()
-user_dataset["issues_frequency"] = x['issues'].to_dict()
-user_dataset["comments"] = x['comments'].to_dict()
-user_dataset["activities_frequency"] = x['total_activities'].to_dict()
-
-user_dataset["days_contrib_old"] = days_contrib
-user_dataset["days_contribution"] = days_contriburion
-
-fm.write_json_to_file(dataFolderPath + "/" + user_name +"/TESTTTTTTT.json", user_dataset) 
-'''

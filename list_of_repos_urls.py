@@ -5,19 +5,15 @@ sys.path.insert(0, packageFolderPath)
 from datamanager.filemanager import FileManager
 import json
  
-#commit_committed
+
 class List_of_repos_urls(FileManager):
     '''
     This class returns a list with the repositories that the user has contributed into
     In order to be able to get a result you need to have downloaded commits_authored and commits_committed full
     
     '''
-
     def list_of_repos_urls_from_committs(self, commit_authored, commit_committed):
         
-        # commit_authored=self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_authored","sha")
-        # commit_committed = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_committed","sha")
-
         list_url = []
         
         for element_id in commit_authored.keys():
@@ -33,12 +29,6 @@ class List_of_repos_urls(FileManager):
         return list_url
 
     def list_of_repos_urls_from_issues(self, issues_assigned, issues_authored, issues_commented,  issues_mentions, issues_owned):
-        # issues_assigned = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_assigned", "id")
-        # issues_authored = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_authored", "id")
-        # issues_commented = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_commented", "id")
-        # issues_mentions = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_mentions", "id")
-        # issues_owned = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_owned", "id")
-
         list_url = []
 
         for element_id in issues_assigned.keys():

@@ -1,12 +1,12 @@
-import sys
-from properties import (dataFolderPath,  packageFolderPath)
-sys.path.insert(0, packageFolderPath) 
-import json
-from datamanager.filemanager import FileManager
+# import sys
+# from properties import (dataFolderPath,  packageFolderPath)
+# sys.path.insert(0, packageFolderPath) 
+# # import json
+# from datamanager.filemanager import FileManager
 from downloader.githubdownloader import GithubDownloader
 from helpers import get_number_of
 from list_of_repos_urls import List_of_repos_urls
-from properties import (GitHubAuthToken, dataFolderPath, gitExecutablePath,verbose)
+# from properties import (GitHubAuthToken, dataFolderPath, gitExecutablePath,verbose)
 
 
 '''
@@ -17,13 +17,10 @@ make additional requests for amount of contributors, realeases and commits
 
 class Project_preferences(List_of_repos_urls):
     
-    def project_popularity_stats(self, dataFolderPath,user_name):
+    def project_popularity_stats(self, dataFolderPath, user_name):
         '''
         This function returns a dictionary with keys the amount of subscripitons, amount of the people that started the repo 
         and as items a list of the amounts per repository.
-
-
-        !!! Make it read from the downloded files of the repos and not make new requests !!!
         '''
         
         repos = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/repositories_owned","id")
@@ -43,33 +40,7 @@ class Project_preferences(List_of_repos_urls):
         
         return stats
 
-    '''
-    def get_avg_popularity_preference(self, stats):
-        """
-        HERE CAN BE DONE THE PROCESSING OF THE POPULARITY --> MAYBE WITH CLUSTERING?
-
-        This function gets as input the statistics of a repository as they are formated from the project_popularity_stats()
-        and return the average of each statistic. This average includes possible extremes and maybe the output isn't completly representable
-        of the popularity of the project the user prefers.
-
-        TRY GETTING THE MEDIAN
-        """
-        average_preference = {}
-        subscribers = []
-        forks = []
-        stars = []
-
-        for key in stats.keys():
-            subscribers = (stats[key]["subscribers_count"] + subscribers)/2
-            forks = (stats[key]["forks_count"] + forks)/2
-            stars = (stats[key]["stargazers_count"] + stars)/2
-
-        average_preference["avg_subscribers_count"] = subscribers
-        average_preference["avg_forks_count"] = forks
-        average_preference["avg_stargazers_count"] = stars
-        return average_preference
-    '''
-    def project_scale_stats(self, dataFolderPath,user_name):
+    def project_scale_stats(self, dataFolderPath,user_name, GitHubAuthToken):
         '''
         This function returns a dictionary with keys the name of each repository and as values another dictionary with items the 
         amount of commits, amount of contributors and the amount of releases.
@@ -91,42 +62,4 @@ class Project_preferences(List_of_repos_urls):
         stats["amount_of_contributors"] = contributors
         stats["amount_of_releases"] = realeases
         return stats
-
-    '''
-    def get_avg_scale_preference(self, stats):
-        """
-        HERE CAN BE DONE THE PROCESSING OF THE SCALE --> MAYBE WITH CLUSTERING?
-
-        This function gets as input the statistics of a repository as they are formated from the project_scale_stats()
-        and return the average of each statistic. This average includes possible extremes and maybe the output 
-        isn't completly representable of the scale of the project the user prefers.
-        """
-        average_preference = {}
-        commits = 0
-        contributors = 0
-        releases = 0
-
-        for key in stats.keys():
-            commits = (stats[key]["amount_of_commits"] + commits)/2
-            contributors = (stats[key]["amount_of_contributors"] + contributors)/2
-            releases = (stats[key]["amount_of_releases"] + releases)/2
-
-        average_preference["avg_amount_of_commits"] = commits
-        average_preference["avg_amount_of_contributors"] = contributors
-        average_preference["avg_amount_of_releases"] = releases
-        
-        return average_preference
-    '''
-
-'''
-user_name='nbriz'
-pp= Project_preferences() 
-stats = pp.project_scale_stats(dataFolderPath, user_name)
-'''
-#avg_pref = get_avg_scale_preference(stats)
-'''
-fm = FileManager()
-fm.write_json_to_file(dataFolderPath + "/" + user_name +"/TEST.json", stats)
-'''
-#fm.write_json_to_file(dataFolderPath + "/" + user_name +"/project_preferences_scale.json", stats)
 

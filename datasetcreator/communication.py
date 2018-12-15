@@ -9,20 +9,24 @@ import requests
 
 
 '''
-Left to do two functions and retest the comment_reactions()
+Retest the comment_reactions()
 '''
 
-#user_address = "https://github.com/nbriz"
-#user_api_address = "https://api.github.com/users/" + '/'.join(user_address.split('/')[-1:])
-#user_name='nbriz'
-
-class Communication (FileManager):    
+class Communication (FileManager): 
+    '''
+    This class contains functions that
+    - return the comments that are made on issues by the user
+    - return the comments that are made on commits by the user
+    - returns both comments that are made on issues and commits by the user
+    - returns a list with the length of all comments the user has writtern
+    - returns the amount of replies after comments of the user 
+    - reactions of comments of the user
+    '''   
 
     def comments_on_issues(self, user_name, issue_comments):
         '''
         This function returns all comment URLs of comments on issues and the comments themselves
         '''
-        #issue_comments = self.read_comment_jsons_from_folder(dataFolderPath+"/"+ user_name + "/issue_comments")
         list_url = []
         comments = {}
 
@@ -51,17 +55,10 @@ class Communication (FileManager):
             
         return list_url, comments
 
-
-
-
     def comments_on_committs(self,  user_name, commit_authored_comments):
         '''
         This function returns all comment URLs of comments on committs and the comments themselves
-        '''
-
-        #commit_authored_comments=self.read_comment_jsons_from_folder(dataFolderPath+"/"+ user_name + "/commit_comments")
-        #commit_committed_comments = self.read_comment_jsons_from_folder(dataFolderPath+"/"+ user_name + "/commit_comments")
-         
+        ''' 
         comments = {}
         list_url = []
 
@@ -86,29 +83,7 @@ class Communication (FileManager):
                             list_url.append(url)          
                 except IndexError:
                     continue 
-        '''
-        for element_id in commit_committed_comments.keys():
-            
-            r_dict = commit_committed_comments[element_id]
-            comments[element_id] ={}
-            for item in range(len(r_dict)):
-                try:
-                    if r_dict[item]["user"]["login"]== user_name:
-                        
-                        comments[element_id][r_dict[item]["id"]] ={}
-                        url = r_dict[item]["url"]
-                        created_at = r_dict[item]["created_at"]
-                        updated_at = r_dict[item]["updated_at"]
-                        body = r_dict[item]["body"] 
-                
-                        comments[element_id]["created_at"]=created_at
-                        comments[element_id]["updated_at"]=updated_at
-                        comments[element_id]["body"]=body
-                        if url not in list_url:
-                            list_url.append(url)          
-                except IndexError:
-                    continue 
-        '''
+
         return list_url, comments
 
     def user_comments(self,user_name, issue_comments, commit_authored_comments):
@@ -157,7 +132,9 @@ class Communication (FileManager):
 
 
     def number_of_comment_answers(self, user_name, issue_comments):
-        #issue_comments = self.read_comment_jsons_from_folder(dataFolderPath+"/"+ user_name + "/issue_comments")
+        '''
+        The amount of replies after comments of the user 
+        '''
         answers_count_list = []
         
         for issue_id in issue_comments.keys():
@@ -207,16 +184,3 @@ class Communication (FileManager):
                 continue
         
         return reactions_detailed, reactions_count
-
-
-# user_name = 'nbriz'
-# dataFolderPath = '/Users/georgia/Desktop'
-# fm = FileManager()
-# cm = Communication()
-# commit_authored_comments=fm.read_comment_jsons_from_folder(dataFolderPath+"/"+ user_name + "/commit_comments")
-# issue_comments = fm.read_comment_jsons_from_folder(dataFolderPath+"/"+ user_name + "/issue_comments")
-
-
-# test = cm.user_comments(user_name, issue_comments, commit_authored_comments)[1]
-# fm.write_json_to_file(dataFolderPath + "/" + user_name +"/YOOOOuser_comments.json", test) 
-     

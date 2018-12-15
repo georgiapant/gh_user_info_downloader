@@ -15,7 +15,7 @@ from datasetcreator.communication import Communication
 '''
 This class contains functions that return:
 -> when they mostly work (days of the week) 
--> frequency of activities (committs/day - issues/day)
+-> frequency of activities (committs/day - issues/day - comments/day - total_activities/day)
 -> Time between creation and closure of an issue by the user (both) 
 -> time between the assignment of an issue to the user and the closure of the issue 
 -> time between two committs of the same developer
@@ -26,22 +26,16 @@ This class contains functions that return:
 '''
 class Productivity(FileManager,GithubDownloader):
     
-    '''
-    def __init__(self, dataFolderPath, user_name):
-        self.commit_committed = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_committed","sha")
-        self.commit_authored=self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_authored","sha")
-        self.issues_authored= self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_authored", "id")
-        self.issues_assigned = self.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_assigned", "id")
-    '''  
     
-    
-
-
     def issue_commits_activities_freq(self,  user_name, commit_committed, commit_authored, issues_authored, issue_comments, commit_authored_comments): #committs per day, issues per day
         '''
-        This function shows the frequency of commits authored and issues authored by the user per day
+        This function shows the frequency of commits authored, issues authored and comments made by the user per day
+        Also, it merges the commits,issues and comments to activities per day
 
-        !!!!Need to combine issues commits in one list and one dict
+        It returns 
+        - a dictionary that includes in detail (date: amount of activity) the commits per day, issues per day and comments per day,
+        - a dictionary that includes the activities per day in detail
+        - also tuple that includes 4 lists with the counts of each activity
         '''
         cm = Communication()
         committs_per_day = {}
@@ -155,7 +149,8 @@ class Productivity(FileManager,GithubDownloader):
             else:
                 activities_per_day[key] = comments_per_day[key]
         
-       
+        # make the list of activities per day
+         
         for key in activities_per_day.keys():
             count_activities_per_day.append(activities_per_day[key])
 
@@ -196,10 +191,7 @@ class Productivity(FileManager,GithubDownloader):
                 if issues_authored[element_id]["closed_by"]["login"]== user_name:
                     date_created = datetime.datetime.strptime(issues_authored[element_id]["created_at"],'%Y-%m-%dT%H:%M:%SZ')
                     date_closed = datetime.datetime.strptime(issues_authored[element_id]["closed_at"],'%Y-%m-%dT%H:%M:%SZ')
-                    ''' 
-                    a = relativedelta( date_closed,date_created).months, relativedelta(date_closed, date_created).hours, relativedelta(date_closed, date_created).days, \
-                    relativedelta(date_closed, date_created).minutes, relativedelta(date_closed, date_created).seconds
-                    '''
+                    
                     a = (date_closed-date_created).total_seconds()
 
                     created_closed_diff.append(a)
@@ -228,8 +220,6 @@ class Productivity(FileManager,GithubDownloader):
             if bool(issues_assigned[element_id]["closed_at"]):
                 date_created = datetime.datetime.strptime(issues_assigned[element_id]["created_at"],'%Y-%m-%dT%H:%M:%SZ')
                 date_closed = datetime.datetime.strptime(issues_assigned[element_id]["closed_at"],'%Y-%m-%dT%H:%M:%SZ') 
-                #a = relativedelta( date_closed,date_created).months, relativedelta(date_closed, date_created).days, \
-                #relativedelta(date_closed, date_created).minutes, relativedelta(date_closed, date_created).seconds
                 a = (date_closed-date_created).total_seconds()
                 assigned_closed_diff.append(a)
                 closed_issue = closed_issue + 1
@@ -260,11 +250,6 @@ class Productivity(FileManager,GithubDownloader):
             dates_list.append(date_committed)
         
         dates_list.sort()
-        '''
-        dates = [(relativedelta(commit_2,commit_1).years, relativedelta(commit_2,commit_1).months, \
-        relativedelta(commit_2, commit_1).days, relativedelta(commit_2, commit_1).hours, relativedelta(commit_2, commit_1).minutes,\
-        relativedelta(commit_2, commit_1).seconds) for commit_1, commit_2 in zip(dates_list[:-1], dates_list[1:])]
-        '''
         dates = [(commit_2-commit_1).total_seconds() for commit_1, commit_2 in zip(dates_list[:-1], dates_list[1:])]
        
         return dates
@@ -300,11 +285,6 @@ class Productivity(FileManager,GithubDownloader):
                         date_created = datetime.datetime.strptime(date_created_str, '%Y-%m-%dT%H:%M:%SZ')
                         date_merged_str =  r_dict[item]["merged_at"]
                         date_merged= datetime.datetime.strptime(date_merged_str, '%Y-%m-%dT%H:%M:%SZ')
-                        '''
-                        diff= (relativedelta(date_merged,date_created).years, relativedelta(date_merged,date_created).months, \
-                        relativedelta(date_merged, date_created).days, relativedelta(date_merged, date_created).hours, \
-                        relativedelta(date_merged, date_created).minutes, relativedelta(date_merged, date_created).seconds)
-                        '''
                         diff = (date_merged-date_created).total_seconds()     
                         diff_list.append(diff)               
                         pull_merged = pull_merged + 1
@@ -351,11 +331,6 @@ class Productivity(FileManager,GithubDownloader):
                     dates_list.append(date_created)
                     
                 dates_list.sort()
-                '''
-                dates = [(relativedelta(deploy_2,deploy_1).years, relativedelta(deploy_2,deploy_1).months, \
-                relativedelta(deploy_2, deploy_1).days, relativedelta(deploy_2, deploy_1).hours, relativedelta(deploy_2, deploy_1).minutes,\
-                relativedelta(deploy_2, deploy_1).seconds) for deploy_1, deploy_2 in zip(dates_list[:-1], dates_list[1:])]
-                '''
                 dates = [(deploy_2-deploy_1).total_seconds() for deploy_1, deploy_2 in zip(dates_list[:-1], dates_list[1:])]
                 deploy_dates[url]["dates_diff"]=dates
 
@@ -435,93 +410,3 @@ class Productivity(FileManager,GithubDownloader):
         	count.append(projects_per_day[key]["count"])
 
         return  projects_per_day, count
-
-    # def contribution_days_old(self,dataFolderPath, user_name, commit_committed, commit_authored, issues_authored, issues_assigned, issue_comments, commit_authored_comments):
-    #     '''
-    #     This function takes the days the user made an action. These actions can be: 
-    #     - a committ committed
-    #     - a committ authored 
-    #     - an issue create by the user
-    #     - an issue closed by the user
-    #     - a comment made by the user
-    #     and returns the amount of activities per day of the week
-    #     '''
-    #     cm = Communication()
-    #     commit_ids = []
-    #     weekday = []
-    #     days_contribution = {} 
-    #     comments_by_user = cm.user_comments(user_name, issue_comments, commit_authored_comments)[1]
-    #     # print(comments_by_user)
-
-    #     for element_id in commit_committed.keys():
-    #         commit_ids.append(element_id)
-    #         date_str = commit_committed[element_id]["commit"]["committer"]["date"]
-    #         date = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ') 
-    #         weekday.append(calendar.day_name[date.weekday()])
-    #         #print(weekday)
-        
-    #     for element_id in commit_authored.keys():
-    #         if element_id not in commit_ids:
-    #             date_str = commit_authored[element_id]["commit"]["author"]["date"]
-    #             date = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ') 
-    #             weekday.append(calendar.day_name[date.weekday()])
-        
-        
-    #     for element_id in issues_authored.keys():
-    #         date_str = issues_authored[element_id]["created_at"]
-    #         date = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ')
-    #         weekday.append(calendar.day_name[date.weekday()])
-            
-    #         if bool(issues_authored[element_id]["closed_at"]):
-    #             if issues_authored[element_id]["closed_by"]["login"] == user_name:
-    #                 date_str =issues_authored[element_id]["closed_at"]
-    #                 date = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ')
-    #                 weekday.append(calendar.day_name[date.weekday()])
-            
-    #     for issue_id in comments_by_user["comments_on_issues"].keys():
-    #         for comment_id in comments_by_user["comments_on_issues"][issue_id].keys():
-    #             try:
-    #                 date_str= comments_by_user["comments_on_issues"][issue_id][comment_id]["created_at"]
-    #                 date = datetime.datetime.strptime(date_str,'%Y-%m-%dT%H:%M:%SZ')
-    #                 weekday.append(calendar.day_name[date.weekday()])
-    #             except KeyError:
-    #                 continue
-
-
-    #     for issue_id in comments_by_user["commnents_on_committs"].keys():
-    #         for comment_id in comments_by_user["commnents_on_committs"][issue_id].keys():
-    #             try:
-    #                 date_str= comments_by_user["commnents_on_committs"][issue_id][comment_id]["created_at"]
-    #                 date = datetime.datetime.strptime(date_str,'%Y-%m-%dT%H:%M:%SZ')
-    #                 weekday.append(calendar.day_name[date.weekday()])
-    #             except KeyError:
-    #                 continue
-            
-    #     days_contribution["total_days_worked"] = len(weekday)
-    #     weekday = Counter(weekday)
-
-    #     for item in weekday.keys():
-    #         days_contribution[item] = weekday[item]
-        
-    #     return days_contribution
-
-# user_name = 'nbriz'
-# dataFolderPath = '/Users/georgia/Desktop'
-# pr = Productivity(GitHubAuthToken)
-# fm= FileManager()
-
-# commit_authored=fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_authored","sha")
-# issues_authored= fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_authored", "id")
-# x = pr.issue_commits_freq(commit_authored,issues_authored)
-# y = pr.activities_freq(x)
-# print(y)
-
-# test = pr.projects_per_day(dataFolderPath,user_name)
-# print(test)
-
-# fm.write_json_to_file(dataFolderPath + "/" + user_name +"/issue_commits_freq.json", x) 
-
-#test1 = pull_merge_diff(dataFolderPath,user_name)[1]
-#fm.write_json_to_file(dataFolderPath + "/" + user_name +"/pull_requests.json", test1) 
-#print(test) 
-

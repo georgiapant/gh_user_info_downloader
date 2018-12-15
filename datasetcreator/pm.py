@@ -15,28 +15,37 @@ Class that includes functions that are related to project management skills
 class Project_management():
     
     def bug_assigned(self, issues_authored):
+        '''
+        returns the amount of issues that are assigned to any user and are bugs (bugs are considered issues that either include
+        a bug related word in their body or in their label)
+        '''
         dbs = Databases()
-        count_issues = 0
+        count_bugs_assigned = 0
         issue_id_list = []
+        total_issues_with_assginee = 0
         for issue_id in issues_authored.keys():
             if bool(issues_authored[issue_id]["assignee"]): #False if dict is empty
+                total_issues_with_assginee += 1
                 if any(word in issues_authored[issue_id]["body"] for word in dbs.keywords_db()[1]):               
-                    count_issues = count_issues + 1
+                    count_bugs_assigned = count_bugs_assigned + 1
                     issue_id_list.append(issue_id)
                 else:
                     for item in range(len(issues_authored[issue_id]["labels"])):
                         if any(word in issues_authored[issue_id]["labels"][item]["name"] for word in dbs.keywords_db()[1]):
-                            count_issues = count_issues + 1
+                            count_bugs_assigned = count_bugs_assigned + 1
                             issue_id_list.append(issue_id)
                 
-        return count_issues, issue_id_list
+        return count_bugs_assigned, total_issues_with_assginee, issue_id_list
 
     def resolved_time(self, issues_authored):
+        '''
+        Returns the time difference between the assignment of a bug and its closure
+        '''
         issues_dict = {}
         time_diff = []
         not_closed_bugs = 0
         for issue_id in issues_authored.keys():
-            if issue_id in self.bug_assigned(issues_authored)[1]:
+            if issue_id in self.bug_assigned(issues_authored)[2]:
                 if bool(issues_authored[issue_id]["closed_at"]):
                     issues_dict[issue_id] = {}
                     issues_dict[issue_id]["created_at"] = issues_authored[issue_id]["created_at"]
@@ -55,6 +64,10 @@ class Project_management():
         return issues_dict, time_diff, not_closed_bugs
 
     def assigned_label(self, issues_authored):
+        '''
+        Returns the amount of labels assigned to issues authored by the user. This is assumed to be the same number of labels assigned 
+        by the user since there is no "created_by" in labels
+        '''
         count_labels = 0
         
         for issue_id in issues_authored.keys():
@@ -64,6 +77,9 @@ class Project_management():
         return count_labels
 
     def assign_milestone(self, user_name, issues_authored):
+        '''
+        Returns the total amount of milestones that all issues authored by the user have and how many were assigned by the user
+        '''
         total_milestones = 0
         milestones_authored_by_user = 0
        
@@ -76,6 +92,10 @@ class Project_management():
         return total_milestones, milestones_authored_by_user
 
     def project_comments(self, user_name, issue_comments, commit_authored_comments):
+        '''
+        Returns the amount of comments made by the user that include a project management keyword in them
+        '''
+        
         dbs = Databases()
         cm = Communication()
         comments = cm.user_comments(user_name, issue_comments, commit_authored_comments)[1]
@@ -98,35 +118,3 @@ class Project_management():
 
 
         return comments_project, total_comments
-'''
-Method that aims to count the amount of merges done by the user
-
-def amount_of_merges(dataFolderPath, user_name):
-    ghd = GithubDownloader(GitHubAuthToken)
-    ls = List_of_repos_urls()
-    list_url = ls.get_list_of_repos_urls(dataFolderPath,user_name)
-    headers = {}
-    pull_merged = 0
-    headers["Accept"]="application/vnd.github.symmetra-preview+json"
-    headers['Authorization'] = 'token ' + GitHubAuthToken
-    parameters = "?state=all"
-
-    for item in list_url:
-        url = "https://api.github.com/repos" +"/"+ '/'.join(item.split('/')[-2:])+"/merges"
-        r = requests.get(url+parameters, headers=headers)
-        ghd.set_request_number(r.headers['x-ratelimit-remaining'], r.headers['x-ratelimit-reset'])
-        r_dict = json.loads(r.text)
-        
-        if bool(r_dict):
-            break
-    return r_dict
-
-import requests
-user_name = 'nbriz'
-
-fm = FileManager()
-
-test = amount_of_merges(dataFolderPath,user_name)
-fm.write_json_to_file(dataFolderPath + "/" + user_name +"/amount_of_merges.json", test) 
-#print(test) 
-'''

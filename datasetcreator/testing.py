@@ -17,11 +17,6 @@ from datasetcreator.dbs import Databases
 - number of issues he closed by the user - done
 - amount of test cases added (file committed with test relevant words in their name)
 '''
-#user_name = 'nbriz'
-#fm = FileManager()
-#pm = Project_management()
-
-#dbs = Databases()
 
 class Test(Databases):
 
@@ -29,16 +24,11 @@ class Test(Databases):
         '''
         User closes issues labeled with keyword related to bug
         '''
-        #issues_authored = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_authored", "id")
-        #issues_assigned = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_assigned", "id")
-        #issues_commented = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_commented", "id")
-        #issues_mentions = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_mentions", "id")
-        #issues_owned = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_owned", "id")
-
         issue_ids = []
         closed_issues_count = 0 #total amount of issues closed by the user
         closed_bugs_count = 0 #total amount of issues identified as bugs closed by the user
         bugs_per_day = {}
+        list_bugs_per_day = []
 
         for issue_id in issues_authored.keys():
             if bool(issues_authored[issue_id]["closed_at"]) and bool(issues_authored[issue_id]["closed_by"]) and issues_authored[issue_id]["closed_by"]["login"]== user_name:
@@ -54,7 +44,6 @@ class Test(Databases):
                                 bugs_per_day[date[0]] = bugs_per_day[date[0]] + 1
                             except:
                                 bugs_per_day[date[0]] = 1
-                            
                             
         
         for issue_id in issues_assigned.keys():
@@ -72,8 +61,7 @@ class Test(Databases):
                                     bugs_per_day[date[0]] = bugs_per_day[date[0]] + 1
                                 except:
                                     bugs_per_day[date[0]] = 1
-        # fm = FileManager()
-        # fm.write_json_to_file(dataFolderPath + "/" + user_name +"/wtf.json", issues_commented)
+       
         for issue_id in issues_commented.keys():
             if issue_id not in issue_ids:
                 # print(issue_id)
@@ -92,8 +80,6 @@ class Test(Databases):
                                 except:
                                     bugs_per_day[date[0]] = 1
             
-                                
-
         for issue_id in issues_mentions.keys():
             if issue_id not in issue_ids:
                 if bool(issues_mentions[issue_id]["closed_at"]) and bool(issues_mentions[issue_id]["closed_by"]) and issues_mentions[issue_id]["closed_by"]["login"]== user_name:
@@ -109,10 +95,10 @@ class Test(Databases):
                                     bugs_per_day[date[0]] = bugs_per_day[date[0]] + 1
                                 except:
                                     bugs_per_day[date[0]] = 1
-        # print(issues_owned)
+        
         for issue_id in issues_owned.keys():
             if issue_id not in issue_ids:
-                # print(type(bool(issues_owned[issue_id]["closed_at"]) and issues_owned[issue_id]["closed_by"]["login"]== user_name))
+                
                 if bool(issues_owned[issue_id]["closed_at"]) and bool(issues_owned[issue_id]["closed_by"]) and issues_owned[issue_id]["closed_by"]["login"]== user_name:
                     issue_ids.append(issue_id)
                     closed_issues_count += 1
@@ -126,8 +112,12 @@ class Test(Databases):
                                     bugs_per_day[date[0]] = bugs_per_day[date[0]] + 1
                                 except:
                                     bugs_per_day[date[0]] = 1
+        
+        for key in bugs_per_day.keys():
+            list_bugs_per_day.append(bugs_per_day[key])
+        
 
-        return closed_bugs_count, closed_issues_count, bugs_per_day
+        return closed_bugs_count, closed_issues_count, list_bugs_per_day, bugs_per_day
 
     def test_comments(self, user_name, issue_comments, commit_authored_comments):
         '''
@@ -159,7 +149,7 @@ class Test(Databases):
                 total_comment_count += 1
                 if any(word in committ_comments[committ_sha][sub_id]["body"] for word in self.keywords_db()[2]):
                     test_comments_count += 1
-                # print(committ_comments[committ_sha])
+                
                 try:
                     if bool(re.findall(reg, committ_comments[committ_sha][sub_id]["body"])): #can get even the issue numbers if needed by removing the bool
                         contains_issue_num += 1
@@ -174,7 +164,7 @@ class Test(Databases):
         This function returns the amount of added files include the string /test/ or /tests/ in their name. 
         It is assumed that those files are part of test cases made by the user
         '''
-        #commit_authored = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/commit_authored","sha")
+       
         list_of_filenames = []
         test_cases = 0
 
@@ -189,19 +179,3 @@ class Test(Databases):
                 test_cases +=1
 
         return test_cases
-
-# from datamanager.filemanager import FileManager
-# dataFolderPath = '/Users/georgia/Desktop'
-# user_name = 'nbriz'
-# fm= FileManager()
-# test = Test()
-
-# issues_authored = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_authored", "id")
-# issues_assigned = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_assigned", "id")
-# issues_commented = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_commented", "id")
-# issues_mentions = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_mentions", "id")
-# issues_owned = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_owned", "id")
-# x = test.closed_issues(user_name,issues_authored,issues_assigned, issues_commented,issues_mentions, issues_owned)
-# fm.write_json_to_file(dataFolderPath + "/" + user_name +"/closed_issues.json", x) 
-
-

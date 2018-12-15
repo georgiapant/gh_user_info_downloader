@@ -1,6 +1,4 @@
 
-
-
 class Databases():
 
     def keywords_db(self):
@@ -34,8 +32,3 @@ class Databases():
         db = dict(db)
         full_name = db[file_endings]
         return full_name
-'''
-dbs = Databases()
-kw = dbs.languages_db("js")
-print(kw)
-'''

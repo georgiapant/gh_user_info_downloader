@@ -1,22 +1,4 @@
-import sys
-from properties import (GitHubAuthToken,dataFolderPath,  packageFolderPath)
-sys.path.insert(0, packageFolderPath) 
-from datamanager.filemanager import FileManager
-
-from downloader.githubdownloader import GithubDownloader
-import json
 import datetime
-import requests
-from dateutil.relativedelta import relativedelta
-
-
-# fm = FileManager()
-# #ghd = GithubDownloader(GitHubAuthToken)
-# user_name = 'nbriz'
-# dataFolderPath = '/Users/georgia/Desktop'
-
-# issues_mentions = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name + "/issues_mentions", "id")
-# issue_comments = fm.read_comment_jsons_from_folder(dataFolderPath+ "/" + user_name + "/issue_comments")
 
 def response_time_to_comments_mentioned(user_name, issues_mentions, issue_comments):
     mention = "@"+user_name
@@ -41,11 +23,4 @@ def response_time_to_comments_mentioned(user_name, issues_mentions, issue_commen
                                 break
 
     return  response_times
-
-
-# x= response_time_to_comments_mentioned(user_name, issues_mentions, issue_comments)
-# fm.write_json_to_file(dataFolderPath + "/" + user_name +"/response_time_to_comments_mentioned.json", x) 
-
-
-
 
