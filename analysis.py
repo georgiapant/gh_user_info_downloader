@@ -84,7 +84,7 @@ def to_day_hour_min_sec(seconds):
     Takes seconds and transdorms them to Days:hours:minutes:seconds
     '''
     try:
-        y =("%d:%d:%d:%d" %((datetime(1,1,1) + timedelta(seconds=seconds)).day-1, (datetime(1,1,1) + timedelta(seconds=seconds)).hour, (datetime(1,1,1) + timedelta(seconds=seconds)).minute, (datetime(1,1,1) + timedelta(seconds=seconds)).second))
+        y =("%d:%d:%d:%d" %(timedelta(seconds=seconds).days, (datetime(1,1,1) + timedelta(seconds=seconds)).hour, (datetime(1,1,1) + timedelta(seconds=seconds)).minute, (datetime(1,1,1) + timedelta(seconds=seconds)).second))
     except:
         y = 'NaN'
     return y
