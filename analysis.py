@@ -1,6 +1,8 @@
 import pandas as pd
 from datetime import datetime, timedelta, date
 import time
+import numpy as np
+import matplotlib.pyplot as plt
 
 '''
 This file contains 
@@ -8,6 +10,8 @@ This file contains
 - Stats of lists 
 - processing the time differences from seconds to d:h:m:s
 - transformation of per_day to per_week
+- percentage creation
+- histogram creation and save
 '''
 
 def additions_deletions_stats(data):
@@ -95,6 +99,7 @@ def activities_per_week(data):
     Data should be a dictionary of date,activity - key, value pairs
     '''
     per_week = {}
+    list_per_week = []
     for key in data.keys():
         date_str= datetime.strptime(key, '%Y-%m-%d')        
         year,week= datetime.date(date_str).isocalendar()[:2]
@@ -103,4 +108,24 @@ def activities_per_week(data):
             per_week[year_week] = per_week[year_week] + data[key]        
         else:
             per_week[year_week] = data[key]
-    return per_week
+    
+    for key in per_week.keys():
+        list_per_week.append(per_week[key])
+
+    return per_week, list_per_week
+
+def percentage_creation(data, divided_by):
+    try:
+        percentage = (data/divided_by)*100
+    except ZeroDivisionError:
+        percentage = 'NaN'
+    return percentage
+
+def histogram_creation(data, bins, xlabel, ylabel, title, datafolderpath):
+    plt.hist(data, bins, facecolor='#274e13', rwidth=0.9)
+    plt.grid(axis='y', alpha=0.5)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.savefig(datafolderpath +"/"+ title+".png")
+
