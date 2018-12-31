@@ -156,7 +156,7 @@ class Productivity(FileManager,GithubDownloader):
 
 
         issues_commits_activities_list = (count_issues, count_commits, count_comments, count_activities_per_day)
-        return issue_commits_comments_freq, issues_commits_activities_list, activities_per_day
+        return  issues_commits_activities_list, activities_per_day, issue_commits_comments_freq
     
     def contribution_days(self, activities_per_day):
         activities = activities_per_day
@@ -408,5 +408,9 @@ class Productivity(FileManager,GithubDownloader):
 
         for key in projects_per_day.keys():
         	count.append(projects_per_day[key]["count"])
+        
+        projects_per_day_short = {}
+        for key in projects_per_day.keys():
+            projects_per_day_short[key] = projects_per_day[key]["count"]
 
-        return  projects_per_day, count
+        return  projects_per_day, count, projects_per_day_short

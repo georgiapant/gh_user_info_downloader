@@ -15,7 +15,7 @@ from datasetcreator.communication import Communication
 from datasetcreator.testing import Test
 from datasetcreator.commits import Commits
 from datasetcreator.operational import Operational
-from analysis import list_stats, additions_deletions_stats, time_diff
+from analysis import list_stats, additions_deletions_stats, time_diff, activities_per_week, percentage_creation
 from list_of_repos_urls import List_of_repos_urls
 import pandas
 import time
@@ -78,22 +78,36 @@ def create_dataset(user_address):
 		lg.start_action("Retrieving user statistics ...", 30)
 
 		user_dataset = {}
+		user_dataset["described"] = {}
+		user_dataset["normalised"] = {}
+		user_dataset["time_diff"] = {}
+		user_dataset["project_preference_info"] = {}
+		user_dataset["commit_changes"] = {}
+		user_dataset["raw_data"] = {}
 		total_list = []
 
 		for key in user_stats_initial.keys():
 			user_dataset[key] = user_stats_initial[key]
 		
-		closed_bugs_count, closed_issues_count, list_bugs_per_day = testing.closed_issues(user_name, issues_authored, issues_assigned, issues_commented, issues_mentions, issues_owned)[0:3]
-		user_dataset["amount_of_issues_closed_by_user_with_bug_keyword"] = closed_bugs_count
-		user_dataset["total_amount_of_issues_closed_by_user"] = closed_issues_count
+		closed_bugs_count, closed_issues_count, list_bugs_per_day, bugs_per_day_long = testing.closed_issues(user_name, issues_authored, issues_assigned, issues_commented, issues_mentions, issues_owned)
+		bugs_per_week = activities_per_week(bugs_per_day_long)[1]
+
+		user_dataset["raw_data"]["amount_of_issues_closed_by_user_with_bug_keyword"] = closed_bugs_count
+		user_dataset["raw_data"]["total_amount_of_issues_closed_by_user"] = closed_issues_count
 	
 
-		(list_count_issues_freq, list_count_commits_freq, list_count_comments_freq, list_count_activities_freq), activiries_freq  = productivity.issue_commits_activities_freq(user_name, commit_committed, commit_authored, issues_authored, issue_comments, commit_authored_comments)[1:3]
+		activities_freq, issue_commits_comments_freq  = productivity.issue_commits_activities_freq(user_name, commit_committed, commit_authored, issues_authored, issue_comments, commit_authored_comments)[1:3]
 		lg.step_action()
-		# activities_frequency = productivity.activities_freq(issues_commits_freq_dict)[1]
-		# lg.step_action()
-		projects_per_day = productivity.projects_per_day(commit_authored, issues_authored)[1]
+		
+		list_count_commits_freq = activities_per_week(issue_commits_comments_freq["committs_per_day"])[1]
+		list_count_issues_freq = activities_per_week(issue_commits_comments_freq["issues_per_day"])[1]
+		list_count_comments_freq = activities_per_week(issue_commits_comments_freq["comments_per_day"])[1]
+		list_count_activities_freq = activities_per_week(activities_freq)[1]
+
+		projects_per_day, projects_per_day_long = productivity.projects_per_day(commit_authored, issues_authored)[1:3]
 		lg.step_action()
+		projects_per_week = activities_per_week(projects_per_day_long)[1]
+
 		comment_length = cm.comment_length(user_name, issue_comments, commit_authored_comments)
 		lg.step_action()
 		number_of_comment_answers = cm.number_of_comment_answers(user_name, issue_comments)
@@ -101,84 +115,115 @@ def create_dataset(user_address):
 		amount_of_files_changed_in_a_commit = commits.files_in_commits(commit_authored)
 		lg.step_action()
 
-		total_list.extend((list_count_commits_freq,list_count_issues_freq, list_count_comments_freq, list_count_activities_freq, projects_per_day, comment_length, number_of_comment_answers, amount_of_files_changed_in_a_commit, list_bugs_per_day))
-		# print(len(total_list))
-		names = ['commits_frequency', 'issues_frequency','comments_frequency', 'activities_frequency' ,'projects_per_day','comment_length', 'number_of_comment_answers','amount_of_files_changed_in_a_commit', 'bugs_resolved_per_day']
+		total_list.extend((list_count_commits_freq,list_count_issues_freq, list_count_comments_freq, list_count_activities_freq, projects_per_day, projects_per_week, comment_length, number_of_comment_answers, amount_of_files_changed_in_a_commit, list_bugs_per_day, bugs_per_week))
+		names = ['commits_frequency_per_week', 'issues_frequency_per_week','comments_frequency_per_week', 'activities_frequency_per_week' ,'projects_per_day', "projects_per_week",'comment_length', 'number_of_comment_answers','amount_of_files_changed_in_a_commit', 'bugs_resolved_per_day', 'bugs_resolved_per_week']
 		out = list_stats(total_list, names)
 
-		user_dataset["commits_frequency"] = out['commits_frequency'].to_dict()
-		user_dataset["issues_frequency"] = out['issues_frequency'].to_dict()
-		user_dataset["comments_frequency"] = out['comments_frequency'].to_dict()
-		user_dataset["activities_frequency"] = out['activities_frequency'].to_dict()
-		user_dataset["projects_per_day"] = out['projects_per_day'].to_dict()
-		user_dataset["comment_length"] = out['comment_length'].to_dict()
-		user_dataset["number_of_comment_answers"] = out['number_of_comment_answers'].to_dict()
-		user_dataset["amount_of_files_changed_in_a_commit"] = out['amount_of_files_changed_in_a_commit'].to_dict()
-		user_dataset["bugs_resolved_per_day"] = out["bugs_resolved_per_day"].to_dict()
+		user_dataset["described"]["commits_frequency_per_week"] = out['commits_frequency_per_week'].to_dict()
+		user_dataset["described"]["issues_frequency_per_week"] = out['issues_frequency_per_week'].to_dict()
+		user_dataset["described"]["comments_frequency_per_week"] = out['comments_frequency_per_week'].to_dict()
+		user_dataset["described"]["activities_frequency_per_week"] = out['activities_frequency_per_week'].to_dict()
+		user_dataset["described"]["projects_per_day"] = out['projects_per_day'].to_dict()
+		user_dataset["described"]["projects_per_week"] = out['projects_per_week'].to_dict()
+		user_dataset["described"]["comment_length"] = out['comment_length'].to_dict()
+		user_dataset["described"]["number_of_comment_answers"] = out['number_of_comment_answers'].to_dict()
+		user_dataset["described"]["amount_of_files_changed_in_a_commit"] = out['amount_of_files_changed_in_a_commit'].to_dict()
+		user_dataset["described"]["bugs_resolved_per_day"] = out["bugs_resolved_per_day"].to_dict()
+		user_dataset["described"]['bugs_resolved_per_week'] = out['bugs_resolved_per_week'].to_dict()
 
-		user_dataset["amount_of_activities_done_per_day_of_the_week"] = productivity.contribution_days(activiries_freq)
+		user_dataset["raw_data"]["amount_of_activities_done_per_day_of_the_week"] = productivity.contribution_days(activities_freq)
 		lg.step_action()
 
-		
-		user_dataset["issue_created_by_user_closed_by_user_time_diff"] = time_diff(productivity.create_close_issue_diff(user_name, issues_authored)[0]['create_close_diff']).to_dict()
+		user_dataset["time_diff"]["issue_created_by_user_closed_by_user_time_diff"] = time_diff(productivity.create_close_issue_diff(user_name, issues_authored)[0]['create_close_diff']).to_dict()
 		lg.step_action()
-		user_dataset["amount_of_issues_created_by_the_user_still_open"], user_dataset["amount_of_issues_created_by_the_user_closed_by_user"], \
-		user_dataset["amount_of_issues_created_by_the_user_closed_by_other_user"] = productivity.create_close_issue_diff(user_name, issues_authored)[1]
+		user_dataset["raw_data"]["amount_of_issues_created_by_the_user_still_open"], user_dataset["raw_data"]["amount_of_issues_created_by_the_user_closed_by_user"], \
+		user_dataset["raw_data"]["amount_of_issues_created_by_the_user_closed_by_other_user"] = productivity.create_close_issue_diff(user_name, issues_authored)[1]
 		lg.step_action()		
-		user_dataset["issue_assigned_to_user_and_closed_by_user_time_diff"] = time_diff(productivity.assign_close_issue_diff(user_name, issues_assigned)[0]["create_close_diff"]).to_dict()
+		user_dataset["time_diff"]["issue_assigned_to_user_and_closed_by_user_time_diff"] = time_diff(productivity.assign_close_issue_diff(user_name, issues_assigned)[0]["create_close_diff"]).to_dict()
 		lg.step_action()
-		user_dataset["amount_of_issues_assigned_to_the_user_still_open"],user_dataset["amount_of_issues_assigned_to_the_user_closed_by_the_user"],\
-		user_dataset["amount_of_issues_assigned_to_the_user_closed_by_other_user"], user_dataset["amount_of_issues_assigned_to_the_user_that_are_closed"] \
+		user_dataset["raw_data"]["amount_of_issues_assigned_to_the_user_still_open"],user_dataset["raw_data"]["amount_of_issues_assigned_to_the_user_closed_by_the_user"],\
+		user_dataset["raw_data"]["amount_of_issues_assigned_to_the_user_closed_by_other_user"], user_dataset["raw_data"]["amount_of_issues_assigned_to_the_user_that_are_closed"] \
 		= productivity.assign_close_issue_diff(user_name, issues_assigned)[1]
 		lg.step_action()
-		user_dataset["time_diff_between_consequtive_commiits_committed_by_user"] = time_diff(productivity.commit_time_diff(commit_committed)).to_dict()
+		user_dataset["time_diff"]["time_diff_between_consequtive_commiits_committed_by_user"] = time_diff(productivity.commit_time_diff(commit_committed)).to_dict()
 		lg.step_action()
-		user_dataset["pull_merge_diff"] = time_diff(productivity.pull_merge_diff(dataFolderPath,user_name)[0]["pull_merge_diff"]).to_dict()
+		user_dataset["time_diff"]["pull_merge_diff"] = time_diff(productivity.pull_merge_diff(dataFolderPath,user_name)[0]["pull_merge_diff"]).to_dict()
 		lg.step_action()
-		user_dataset["total_pull_request_done_by_the_user"],user_dataset["amount_of_pull_request_done_by_the_user_were_merged"],\
-		user_dataset["amount_of_pull_request_done_by_the_user_were_closed_not_merged"], user_dataset["amount_of_pull_request_done_by_the_user_still_open"]\
+		user_dataset["raw_data"]["total_pull_request_done_by_the_user"],user_dataset["raw_data"]["amount_of_pull_request_done_by_the_user_were_merged"],\
+		user_dataset["raw_data"]["amount_of_pull_request_done_by_the_user_were_closed_not_merged"], user_dataset["raw_data"]["amount_of_pull_request_done_by_the_user_still_open"]\
 		= productivity.pull_merge_diff(dataFolderPath,user_name)[1]
 		lg.step_action()
-		user_dataset["time_active - (y,m,d)"] = time_active(commit_committed)
+		user_dataset["raw_data"]["time_active - (y,m,d)"] = time_active(commit_committed)
 		lg.step_action()
-		user_dataset["amount_of_files_committed_per_language"],user_dataset["total_files_committed"]= lan.count_languages(commit_authored)
+		user_dataset["raw_data"]["amount_of_files_committed_per_language"],user_dataset["raw_data"]["total_files_committed"]= lan.count_languages(commit_authored)
 		lg.step_action()
-		user_dataset["total_issues_with_bug_keyword_assigned_to_someone_by_the_user"], user_dataset["total_issues_assigned_to_someone_by_the_user"] = pm.bug_assigned(issues_authored)[0:2]
+		user_dataset["raw_data"]["total_issues_with_bug_keyword_assigned_to_someone_by_the_user"], user_dataset["raw_data"]["total_issues_assigned_to_someone_by_the_user"] = pm.bug_assigned(issues_authored)[0:2]
 		lg.step_action()
-		user_dataset["total_issues_with_label_assigned_by_the_user"] = pm.assigned_label(issues_authored)
+		user_dataset["raw_data"]["total_issues_with_label_assigned_by_the_user"] = pm.assigned_label(issues_authored)
 		lg.step_action()		
-		user_dataset["total_issues_created_by_user_with_milestone_assigned"], user_dataset["total_issues_with_milestone_assigned_by_the_user"] = pm.assign_milestone(user_name, issues_authored)
+		user_dataset["raw_data"]["total_issues_created_by_user_with_milestone_assigned"], user_dataset["raw_data"]["total_issues_with_milestone_assigned_by_the_user"] = pm.assign_milestone(user_name, issues_authored)
 		lg.step_action()
-		user_dataset["number_of_comments_with_project_mgmt_keywords"],user_dataset["total_comments_made_by_user"]  = pm.project_comments(user_name, issue_comments, commit_authored_comments)
+		user_dataset["raw_data"]["number_of_comments_with_project_mgmt_keywords"],user_dataset["raw_data"]["total_comments_made_by_user"]  = pm.project_comments(user_name, issue_comments, commit_authored_comments)
 		lg.step_action()				
-		user_dataset["commit_changes_per_language"] = additions_deletions_stats(commits.commit_changes(commit_authored)).to_dict()
+		user_dataset["commit_changes"]["commit_changes_per_language"] = additions_deletions_stats(commits.commit_changes(commit_authored)).to_dict()
 		lg.step_action()
-		user_dataset["documentation_commit_changes"] = additions_deletions_stats(operational.documentation_commit(commit_authored)[0]).to_dict()
+		user_dataset["commit_changes"]["documentation_commit_changes"] = additions_deletions_stats(operational.documentation_commit(commit_authored)[0]).to_dict()
 		lg.step_action()
-		user_dataset["amount_of_files_related_to_testing_committed_by_user"] = testing.add_test_case(commit_authored)
+		user_dataset["raw_data"]["amount_of_files_related_to_testing_committed_by_user"]  = testing.add_test_case(commit_authored)
 		lg.step_action()
-		user_dataset["bug_word_in_commit_message/bug_fixing_contribution"] = commits.bug_fixing_contribution(commit_authored)
+		user_dataset["raw_data"]["bug_word_in_commit_message/bug_fixing_contribution"] = commits.bug_fixing_contribution(commit_authored)
 		lg.step_action()
-		user_dataset["amount_of_comments_made_by_the_user_with_test_keyword"], user_dataset["amount_of_comments_made_by_the_user_with_issue_number_reference"] = testing.test_comments(user_name, issue_comments, commit_authored_comments)[0]
+		user_dataset["raw_data"]["amount_of_comments_made_by_the_user_with_test_keyword"], user_dataset["raw_data"]["amount_of_comments_made_by_the_user_with_issue_number_reference"] = testing.test_comments(user_name, issue_comments, commit_authored_comments)[0]
 		lg.step_action()		
-		user_dataset["number_of_comments_with_documentation_keywords"] = operational.documentation_comments( user_name, issue_comments, commit_authored_comments)
+		user_dataset["raw_data"]["number_of_comments_with_documentation_keywords"] = operational.documentation_comments( user_name, issue_comments, commit_authored_comments)
 		lg.step_action()
 		
-		user_dataset["count_of_empty_commit_messages"] = commits.empty_commit_message(commit_committed)
+		user_dataset["raw_data"]["count_of_empty_commit_messages"] = commits.empty_commit_message(commit_committed)
 		lg.step_action()
 
-		#user_dataset["deploy_days_time_diff"] = productivity.deploy_rate(dataFolderPath,user_name)
-		#lg.step_action()
-
-		user_dataset["project_popularity_stats"] = {"forks": list_stats([pp.project_popularity_stats(dataFolderPath,user_name)["forks_count"]],["forks"])["forks"].to_dict(),\
+		user_dataset["project_preference_info"]["project_popularity_stats"] = {"forks": list_stats([pp.project_popularity_stats(dataFolderPath,user_name)["forks_count"]],["forks"])["forks"].to_dict(),\
 		"stargazers":list_stats([pp.project_popularity_stats(dataFolderPath,user_name)["stargazers_count"]],["stargazers"])["stargazers"].to_dict(),\
 		"watchers":list_stats([pp.project_popularity_stats(dataFolderPath,user_name)["watchers_count"]],["watchers"])["watchers"].to_dict()}
 		lg.step_action()
 		
-		user_dataset["project_scale_stats"] = {"commits": list_stats([pp.project_scale_stats(dataFolderPath,user_name, GitHubAuthToken)["amount_of_commits"]],["commits"])["commits"].to_dict(),\
+		user_dataset["project_preference_info"]["project_scale_stats"] = {"commits": list_stats([pp.project_scale_stats(dataFolderPath,user_name, GitHubAuthToken)["amount_of_commits"]],["commits"])["commits"].to_dict(),\
 		"contributors":list_stats([pp.project_scale_stats(dataFolderPath,user_name, GitHubAuthToken)["amount_of_contributors"]],["contributors"])["contributors"].to_dict(),\
 		"releases":list_stats([pp.project_scale_stats(dataFolderPath,user_name, GitHubAuthToken)["amount_of_releases"]],["releases"])["releases"].to_dict()}
 		lg.step_action()
+
+		#percentages creation
+	
+		user_dataset["normalised"]["percentage_of_testing_related_files_committed_by_the_user"] = percentage_creation(user_dataset["raw_data"]["amount_of_files_related_to_testing_committed_by_user"],user_dataset["commit_committed"])
+		
+
+		for key in user_dataset["raw_data"]["amount_of_files_committed_per_language"].keys():
+			user_dataset["normalised"]["percentage_of_files_committed_in_" +key] = percentage_creation(user_dataset["raw_data"]["amount_of_files_committed_per_language"][key],user_dataset["raw_data"]["total_files_committed"])
+		
+		user_dataset["normalised"]["percentage_of_repos_the_user_contributed_that_he_owes"] = percentage_creation(user_dataset["repositories_owned"],user_dataset["repos"])
+		user_dataset["normalised"]["percentage_of_empty_commit_messages"] = percentage_creation(user_dataset["raw_data"]["count_of_empty_commit_messages"],user_dataset["commit_committed"])
+		user_dataset["normalised"]["percentage_of_commit_messages_with_bug_keyword"] = percentage_creation(user_dataset["raw_data"]["bug_word_in_commit_message/bug_fixing_contribution"],user_dataset["commit_committed"])
+		user_dataset["normalised"]["percentage_of_comments_with_test_keyword"] = percentage_creation(user_dataset["raw_data"]["amount_of_comments_made_by_the_user_with_test_keyword"],user_dataset["raw_data"]["total_comments_made_by_user"])
+		user_dataset["normalised"]["percentage_of_comments_with_documentation_keyword"] = percentage_creation(user_dataset["raw_data"]["number_of_comments_with_documentation_keywords"],user_dataset["raw_data"]["total_comments_made_by_user"])
+		user_dataset["normalised"]["percentage_of_comments_with_project_management_keyword"] = percentage_creation(user_dataset["raw_data"]["number_of_comments_with_project_mgmt_keywords"],user_dataset["raw_data"]["total_comments_made_by_user"])
+		user_dataset["normalised"]["percentage_of_comments_with_issue_number"] = percentage_creation(user_dataset["raw_data"]["amount_of_comments_made_by_the_user_with_issue_number_reference"],user_dataset["raw_data"]["total_comments_made_by_user"])
+		user_dataset["normalised"]["percentage_of_issues_with_bug_keyword_assigned_by_the_user"] = percentage_creation(user_dataset["raw_data"]["total_issues_with_bug_keyword_assigned_to_someone_by_the_user"],user_dataset["raw_data"]["total_issues_assigned_to_someone_by_the_user"])
+		user_dataset["normalised"]["percentage_of_issues_with_assigned_label"] = percentage_creation(user_dataset["raw_data"]["total_issues_with_label_assigned_by_the_user"],user_dataset["issues_authored"])
+		user_dataset["normalised"]["percentage_of_issues_created_by_the_user_with_assigned_milestone"] = percentage_creation(user_dataset["raw_data"]["total_issues_created_by_user_with_milestone_assigned"],user_dataset["issues_authored"])
+		user_dataset["normalised"]["percentage_of_issues_created_by_the_user_with_assigned_milestone_by_the_user"] = percentage_creation(user_dataset["raw_data"]["total_issues_with_milestone_assigned_by_the_user"],user_dataset["issues_authored"])
+		user_dataset["normalised"]["percentage_of_issues_with_milestone_where_that_milestone_was_assigned_by_the_user"] = percentage_creation(user_dataset["raw_data"]["total_issues_with_milestone_assigned_by_the_user"],user_dataset["raw_data"]["total_issues_created_by_user_with_milestone_assigned"])
+		user_dataset["normalised"]["percentage_of_issues_created_by_the_user_that_are_still_open"] = percentage_creation(user_dataset["raw_data"]["amount_of_issues_created_by_the_user_still_open"],user_dataset["issues_authored"])
+		user_dataset["normalised"]["percentage_of_issues_created_by_the_user_closed_by_user"] = percentage_creation(user_dataset["raw_data"]["amount_of_issues_created_by_the_user_closed_by_user"],user_dataset["issues_authored"])
+		user_dataset["normalised"]["percentage_of_issues_assigned_to_the_user_closed_by_user"] = percentage_creation(user_dataset["raw_data"]["amount_of_issues_assigned_to_the_user_closed_by_the_user"],user_dataset["issues_assigned"])
+		user_dataset["normalised"]["percentage_of_issues_assigned_to_the_user_still_open"] = percentage_creation(user_dataset["raw_data"]["amount_of_issues_assigned_to_the_user_still_open"],user_dataset["issues_assigned"])
+		user_dataset["normalised"]["percentage_of_issues_closed_by_the_user_with_bug_keyword"] = percentage_creation(user_dataset["raw_data"]["amount_of_issues_closed_by_user_with_bug_keyword"],user_dataset["raw_data"]["total_amount_of_issues_closed_by_user"])
+		user_dataset["normalised"]["percentage_of_pull_requests_made_by_the_user_that_were_merged"] = percentage_creation(user_dataset["raw_data"]["amount_of_pull_request_done_by_the_user_were_merged"],user_dataset["raw_data"]["total_pull_request_done_by_the_user"])
+		user_dataset["normalised"]["percentage_of_pull_requests_made_by_the_user_that_were_closed_not_merged"] = percentage_creation(user_dataset["raw_data"]["amount_of_pull_request_done_by_the_user_were_closed_not_merged"],user_dataset["raw_data"]["total_pull_request_done_by_the_user"])
+		user_dataset["normalised"]["percentage_of_pull_requests_made_by_the_user_that_are_still_open"] = percentage_creation(user_dataset["raw_data"]["amount_of_pull_request_done_by_the_user_still_open"],user_dataset["raw_data"]["total_pull_request_done_by_the_user"])
+
+
+		for key in user_dataset["raw_data"]["amount_of_activities_done_per_day_of_the_week"].keys():
+			user_dataset["normalised"]["percentage_of_activities_per_"+ key] = percentage_creation(user_dataset["raw_data"]["amount_of_activities_done_per_day_of_the_week"][key],user_dataset["raw_data"]["amount_of_activities_done_per_day_of_the_week"]["total_days_worked"])
+
 
 		project.add_user_dataset(user_dataset)
 		lg.end_action()

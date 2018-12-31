@@ -56,6 +56,25 @@ class FileManager:
 			for key, value in element.items():				
 				data[key] = value
 		return data
+	
+	def read_stats_jsons_from_folder(self, foldername):
+		"""
+		Reads the files that contain statistics of users of a folder into a dict of JSON objects. 
+		
+		:param foldername: the path to the folder from where JSON objects are read.
+		:returns: a dict containing the JSON objects that are contained in the folder.
+		"""
+		data = {}
+		for filename in os.listdir(foldername):
+			
+			try:
+				ending, name = filename.split('.')[::-1]
+				if ending == "json":
+					element = self.read_json_from_file(os.path.join(foldername, filename))			
+					data[name] = element
+			except:
+				continue	
+		return data
 
 	def read_json_from_file(self, filename):
 		"""

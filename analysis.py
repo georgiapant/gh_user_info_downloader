@@ -118,7 +118,7 @@ def percentage_creation(data, divided_by):
     try:
         percentage = (data/divided_by)*100
     except ZeroDivisionError:
-        percentage = 'NaN'
+        percentage = np.nan
     return percentage
 
 def histogram_creation(data, bins, xlabel, ylabel, title, datafolderpath):
@@ -127,5 +127,6 @@ def histogram_creation(data, bins, xlabel, ylabel, title, datafolderpath):
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.title(title)
-    plt.savefig(datafolderpath +"/"+ title+".png")
+    plt.savefig(datafolderpath +"/"+ xlabel+".png")
+    plt.clf()
 
