@@ -81,7 +81,7 @@ class Productivity(FileManager,GithubDownloader):
                 issues_per_day[date[0]] = 1
             
             if bool(issues_authored[element_id]["closed_at"]):
-                if issues_authored[element_id]["closed_by"]["login"] == user_name:
+                if bool(issues_authored[element_id]["closed_by"]) and issues_authored[element_id]["closed_by"]["login"] == user_name:
                     date_str =issues_authored[element_id]["closed_at"]
                     date = date_str.split('T')
                     try:
@@ -188,7 +188,7 @@ class Productivity(FileManager,GithubDownloader):
 
         for element_id in issues_authored.keys():
             if bool(issues_authored[element_id]["closed_at"]):
-                if issues_authored[element_id]["closed_by"]["login"]== user_name:
+                if bool(issues_authored[element_id]["closed_by"]) and issues_authored[element_id]["closed_by"]["login"]== user_name:
                     date_created = datetime.datetime.strptime(issues_authored[element_id]["created_at"],'%Y-%m-%dT%H:%M:%SZ')
                     date_closed = datetime.datetime.strptime(issues_authored[element_id]["closed_at"],'%Y-%m-%dT%H:%M:%SZ')
                     
@@ -223,7 +223,7 @@ class Productivity(FileManager,GithubDownloader):
                 a = (date_closed-date_created).total_seconds()
                 assigned_closed_diff.append(a)
                 closed_issue = closed_issue + 1
-                if issues_assigned[element_id]["closed_by"]["login"]== user_name:
+                if bool(issues_assigned[element_id]["closed_by"]) and issues_assigned[element_id]["closed_by"]["login"]== user_name:
                     closed_by_user = closed_by_user + 1
             else:
                 still_open = still_open + 1
@@ -279,20 +279,23 @@ class Productivity(FileManager,GithubDownloader):
             r_dict = json.loads(r.text)
             
             for item in range(len(r_dict)):
-                if r_dict[item]["user"]["login"] == user_name:
-                    if bool(r_dict[item]["merged_at"]):
-                        date_created_str =  r_dict[item]["created_at"]
-                        date_created = datetime.datetime.strptime(date_created_str, '%Y-%m-%dT%H:%M:%SZ')
-                        date_merged_str =  r_dict[item]["merged_at"]
-                        date_merged= datetime.datetime.strptime(date_merged_str, '%Y-%m-%dT%H:%M:%SZ')
-                        diff = (date_merged-date_created).total_seconds()     
-                        diff_list.append(diff)               
-                        pull_merged = pull_merged + 1
-                    elif bool(r_dict[item]["closed_at"]):
-                        pull_closed_not_merged = pull_closed_not_merged + 1
-                    else:
-                        pull_open = pull_open +1
-                    pulls_total = pulls_total + 1
+                try:
+                    if bool(r_dict[item]["user"]["login"]) and r_dict[item]["user"]["login"] == user_name:
+                        if bool(r_dict[item]["merged_at"]):
+                            date_created_str =  r_dict[item]["created_at"]
+                            date_created = datetime.datetime.strptime(date_created_str, '%Y-%m-%dT%H:%M:%SZ')
+                            date_merged_str =  r_dict[item]["merged_at"]
+                            date_merged= datetime.datetime.strptime(date_merged_str, '%Y-%m-%dT%H:%M:%SZ')
+                            diff = (date_merged-date_created).total_seconds()     
+                            diff_list.append(diff)               
+                            pull_merged = pull_merged + 1
+                        elif bool(r_dict[item]["closed_at"]):
+                            pull_closed_not_merged = pull_closed_not_merged + 1
+                        else:
+                            pull_open = pull_open +1
+                        pulls_total = pulls_total + 1
+                except:
+                    continue
         pulls["pull_merged"] = pull_merged
         pulls["pull_closed_not_merged"] = pull_closed_not_merged
         pulls["pull_open"] = pull_open

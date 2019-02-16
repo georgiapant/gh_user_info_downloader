@@ -121,12 +121,13 @@ def percentage_creation(data, divided_by):
         percentage = np.nan
     return percentage
 
-def histogram_creation(data, bins, xlabel, ylabel, title, datafolderpath):
-    plt.hist(data, bins, facecolor='#274e13', rwidth=0.9)
+def histogram_creation(data, bins, range, xlabel, ylabel, title, datafolderpath):
+    plt.hist(data, bins, range, facecolor='#274e13', rwidth=0.9)
     plt.grid(axis='y', alpha=0.5)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.title(title)
     plt.savefig(datafolderpath +"/"+ xlabel+".png")
     plt.clf()
+
 

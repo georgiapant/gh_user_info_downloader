@@ -26,7 +26,7 @@ class Project_management():
         for issue_id in issues_authored.keys():
             if bool(issues_authored[issue_id]["assignee"]): #False if dict is empty
                 total_issues_with_assginee += 1
-                if any(word in issues_authored[issue_id]["body"] for word in dbs.keywords_db()[1]):               
+                if bool(issues_authored[issue_id]["body"]) and any(word in issues_authored[issue_id]["body"] for word in dbs.keywords_db()[1]):               
                     count_bugs_assigned = count_bugs_assigned + 1
                     issue_id_list.append(issue_id)
                 else:
