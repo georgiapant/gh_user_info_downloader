@@ -119,6 +119,30 @@ class Test(Databases):
 
         return closed_bugs_count, closed_issues_count, list_bugs_per_day, bugs_per_day
 
+    def opened_bugs(self, user_name, issues_authored):
+        opened_bugs_count = 0
+        bugs_opened_per_day = {}
+        list_bugs_opened_per_day = []
+
+        for issue_id in issues_authored.keys():
+            if bool(issues_authored[issue_id]["labels"]):                 
+                for item in range(len(issues_authored[issue_id]["labels"])):
+                    if any(word in issues_authored[issue_id]["labels"][item]["name"] for word in self.keywords_db()[1]):                    
+                        opened_bugs_count += 1
+                        date_str = issues_authored[issue_id]["created_at"]
+                        date = date_str.split('T')
+                        try:
+                            bugs_opened_per_day[date[0]] = bugs_opened_per_day[date[0]] + 1
+                        except:
+                            bugs_opened_per_day[date[0]] = 1
+
+        for key in bugs_opened_per_day.keys():
+            list_bugs_opened_per_day.append(bugs_opened_per_day[key])
+        
+        return opened_bugs_count, list_bugs_opened_per_day, bugs_opened_per_day
+
+
+
     def test_comments(self, user_name, issue_comments, commit_authored_comments):
         '''
         This function returns 

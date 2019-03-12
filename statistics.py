@@ -95,6 +95,12 @@ def create_dataset(user_address):
 		user_dataset["raw_data"]["amount_of_issues_closed_by_user_with_bug_keyword"] = closed_bugs_count
 		user_dataset["raw_data"]["total_amount_of_issues_closed_by_user"] = closed_issues_count
 	
+	
+		open_bugs_count, list_bugs_opened_per_day, bugs_opened_per_day = testing.opened_bugs(user_name,issues_authored)
+		bugs_opened_per_week = activities_per_week(bugs_opened_per_day)[1]
+
+		user_dataset["raw_data"]["amount_of_issues_created_by_the_user_with_bug_keyword"] = open_bugs_count
+		
 
 		activities_freq, issue_commits_comments_freq  = productivity.issue_commits_activities_freq(user_name, commit_committed, commit_authored, issues_authored, issue_comments, commit_authored_comments)[1:3]
 		lg.step_action()
@@ -115,8 +121,8 @@ def create_dataset(user_address):
 		amount_of_files_changed_in_a_commit = commits.files_in_commits(commit_authored)
 		lg.step_action()
 
-		total_list.extend((list_count_commits_freq,list_count_issues_freq, list_count_comments_freq, list_count_activities_freq, projects_per_day, projects_per_week, comment_length, number_of_comment_answers, amount_of_files_changed_in_a_commit, list_bugs_per_day, bugs_per_week))
-		names = ['commits_frequency_per_week', 'issues_frequency_per_week','comments_frequency_per_week', 'activities_frequency_per_week' ,'projects_per_day', "projects_per_week",'comment_length', 'number_of_comment_answers','amount_of_files_changed_in_a_commit', 'bugs_resolved_per_day', 'bugs_resolved_per_week']
+		total_list.extend((list_count_commits_freq,list_count_issues_freq, list_count_comments_freq, list_count_activities_freq, projects_per_day, projects_per_week, comment_length, number_of_comment_answers, amount_of_files_changed_in_a_commit, list_bugs_per_day, bugs_per_week, list_bugs_opened_per_day, bugs_opened_per_week))
+		names = ['commits_frequency_per_week', 'issues_frequency_per_week','comments_frequency_per_week', 'activities_frequency_per_week' ,'projects_per_day', "projects_per_week",'comment_length', 'number_of_comment_answers','amount_of_files_changed_in_a_commit', 'bugs_resolved_per_day', 'bugs_resolved_per_week', 'bugs_opened_per_day', 'bugs_opened_per_week']
 		out = list_stats(total_list, names)
 
 		user_dataset["described"]["commits_frequency_per_week"] = out['commits_frequency_per_week'].to_dict()
@@ -130,6 +136,8 @@ def create_dataset(user_address):
 		user_dataset["described"]["amount_of_files_changed_in_a_commit"] = out['amount_of_files_changed_in_a_commit'].to_dict()
 		user_dataset["described"]["bugs_resolved_per_day"] = out["bugs_resolved_per_day"].to_dict()
 		user_dataset["described"]['bugs_resolved_per_week'] = out['bugs_resolved_per_week'].to_dict()
+		user_dataset["described"]["bugs_opened_per_day"] = out["bugs_opened_per_day"].to_dict()
+		user_dataset["described"]['bugs_opened_per_week'] = out['bugs_opened_per_week'].to_dict()
 
 		user_dataset["raw_data"]["amount_of_activities_done_per_day_of_the_week"] = productivity.contribution_days(activities_freq)
 		lg.step_action()
@@ -181,6 +189,7 @@ def create_dataset(user_address):
 		user_dataset["raw_data"]["count_of_empty_commit_messages"] = commits.empty_commit_message(commit_committed)
 		lg.step_action()
 
+		#THIS TAKES A LOT OF TIME - because it does requests to the API
 		user_dataset["project_preference_info"]["project_popularity_stats"] = {"forks": list_stats([pp.project_popularity_stats(dataFolderPath,user_name)["forks_count"]],["forks"])["forks"].to_dict(),\
 		"stargazers":list_stats([pp.project_popularity_stats(dataFolderPath,user_name)["stargazers_count"]],["stargazers"])["stargazers"].to_dict(),\
 		"watchers":list_stats([pp.project_popularity_stats(dataFolderPath,user_name)["watchers_count"]],["watchers"])["watchers"].to_dict()}
@@ -190,6 +199,7 @@ def create_dataset(user_address):
 		"contributors":list_stats([pp.project_scale_stats(dataFolderPath,user_name, GitHubAuthToken)["amount_of_contributors"]],["contributors"])["contributors"].to_dict(),\
 		"releases":list_stats([pp.project_scale_stats(dataFolderPath,user_name, GitHubAuthToken)["amount_of_releases"]],["releases"])["releases"].to_dict()}
 		lg.step_action()
+		#UNTIL HERE		
 
 		#percentages creation
 	

@@ -37,6 +37,7 @@ def read_file_in_lines(filename):
 	return [line.strip() for line in lines]
 
 def print_usage():
+
 	"""
 	Prints the usage information of this python file.
 	"""

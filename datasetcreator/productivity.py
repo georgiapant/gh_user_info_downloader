@@ -417,3 +417,5 @@ class Productivity(FileManager,GithubDownloader):
             projects_per_day_short[key] = projects_per_day[key]["count"]
 
         return  projects_per_day, count, projects_per_day_short
+
+        

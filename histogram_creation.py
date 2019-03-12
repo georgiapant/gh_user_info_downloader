@@ -65,6 +65,7 @@ stats = fm.read_stats_jsons_from_folder(dataFolderPath)
 df_percentage = pd.DataFrame.from_dict({(i): stats[i]["normalised"] for i in stats.keys()}, orient='index')
 
 for column in df_percentage:
+    break
     
     x = np.nanpercentile(df_percentage[column],98)
     range_x = (df_percentage[column].min(),x)
@@ -78,7 +79,7 @@ print("normalised done")
 df_mean = pd.DataFrame.from_dict({(j,i): stats[i]["described"][j] for i in stats.keys() for j in stats[i]["described"].keys() }, orient='columns')
 
 for column in df_mean:
-    
+    break
     data = df_mean[column[0]].transpose()["mean"]
     x = np.nanpercentile(data,98)
     range_x = (data.min(),x)
@@ -91,6 +92,7 @@ print("described done")
 df_project = pd.DataFrame.from_dict({(k,j,i): stats[i]["project_preference_info"][k][j] for i in stats.keys() for k in stats[i]["project_preference_info"].keys() for j in stats[i]["project_preference_info"][k].keys()}, orient='index')
 
 for i in df_project.index.levels[0]:
+    break
     for j in df_project.index.levels[1]:
         try:
             
@@ -108,12 +110,14 @@ print("project preferences done")
 df_time_diff = pd.DataFrame.from_dict({(k,i): stats[i]["time_diff"][k]["Seconds"] for i in stats.keys() for k in stats[i]["time_diff"].keys()}, orient='index')
 
 for i in df_time_diff.index.levels[0]:
+    break
     try:
         
         data = df_time_diff.transpose()[i].transpose()
-        x = np.nanpercentile(data["mean"],98)
+        x = np.nanpercentile(data["mean"],95)
         range_x = (data["mean"].min(),x)
-        histogram_creation(data["mean"], 20, range_x, "mean_seconds","#users", i, dataFolderPath+"/histograms")
+        #histogram_creation(data["mean"], 20, range_x, "mean_seconds","#users", i, dataFolderPath+"/histograms")
+        histogram_creation(data["mean"], 20, range_x, i,"#users", i, dataFolderPath+"/histograms")
 
     except:
         continue
