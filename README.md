@@ -1,8 +1,4 @@
 
-# 2018_Georgia_Pantalona_Symeonidis
-
- Αναγνώριση Προφίλ Μηχανικών Λογισμικού από Δεδομένα Συστημάτων Ελέγχου Εκδόσεων
-
 
 ## Download_information function
 
