@@ -229,6 +229,7 @@ def create_dataset(user_address):
 		user_dataset["normalised"]["percentage_of_pull_requests_made_by_the_user_that_were_merged"] = percentage_creation(user_dataset["raw_data"]["amount_of_pull_request_done_by_the_user_were_merged"],user_dataset["raw_data"]["total_pull_request_done_by_the_user"])
 		user_dataset["normalised"]["percentage_of_pull_requests_made_by_the_user_that_were_closed_not_merged"] = percentage_creation(user_dataset["raw_data"]["amount_of_pull_request_done_by_the_user_were_closed_not_merged"],user_dataset["raw_data"]["total_pull_request_done_by_the_user"])
 		user_dataset["normalised"]["percentage_of_pull_requests_made_by_the_user_that_are_still_open"] = percentage_creation(user_dataset["raw_data"]["amount_of_pull_request_done_by_the_user_still_open"],user_dataset["raw_data"]["total_pull_request_done_by_the_user"])
+		user_dataset["normalised"]["percentage_of_issues_opened_by_the_user_with_bug_keyword"] = percentage_creation(user_dataset["raw_data"]["amount_of_issues_created_by_the_user_with_bug_keyword"],user_dataset["issues_authored"])
 
 
 		for key in user_dataset["raw_data"]["amount_of_activities_done_per_day_of_the_week"].keys():
