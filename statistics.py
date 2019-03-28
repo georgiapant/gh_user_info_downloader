@@ -15,10 +15,12 @@ from datasetcreator.communication import Communication
 from datasetcreator.testing import Test
 from datasetcreator.commits import Commits
 from datasetcreator.operational import Operational
-from analysis import list_stats, additions_deletions_stats, time_diff, activities_per_week, percentage_creation
+from analysis import list_stats, additions_deletions_stats, time_diff, activities_per_week, percentage_creation, activities_per_month
 from list_of_repos_urls import List_of_repos_urls
+from datasetcreator.response_time import response_time_to_comments_mentioned
 import pandas
 import time
+from final_datasets import create_final_datasets
 
 import os
 import json
@@ -43,6 +45,7 @@ commits = Commits()
 testing = Test()
 operational = Operational()
 ls = List_of_repos_urls()
+
 
 
 
@@ -75,7 +78,7 @@ def create_dataset(user_address):
 	
 	try:
 		lg.log_action("Creating dataset of " + user_name)
-		lg.start_action("Retrieving user statistics ...", 30)
+		lg.start_action("Retrieving user statistics ...", 31)
 
 		user_dataset = {}
 		user_dataset["described"] = {}
@@ -149,6 +152,9 @@ def create_dataset(user_address):
 		lg.step_action()		
 		user_dataset["time_diff"]["issue_assigned_to_user_and_closed_by_user_time_diff"] = time_diff(productivity.assign_close_issue_diff(user_name, issues_assigned)[0]["create_close_diff"]).to_dict()
 		lg.step_action()
+
+		user_dataset["time_diff"]["response_time_to_comments_mentioned"]=time_diff(response_time_to_comments_mentioned(user_name,issues_mentions,issue_comments)).to_dict()
+		lg.step_action()
 		user_dataset["raw_data"]["amount_of_issues_assigned_to_the_user_still_open"],user_dataset["raw_data"]["amount_of_issues_assigned_to_the_user_closed_by_the_user"],\
 		user_dataset["raw_data"]["amount_of_issues_assigned_to_the_user_closed_by_other_user"], user_dataset["raw_data"]["amount_of_issues_assigned_to_the_user_that_are_closed"] \
 		= productivity.assign_close_issue_diff(user_name, issues_assigned)[1]
@@ -190,6 +196,7 @@ def create_dataset(user_address):
 		lg.step_action()
 
 		#THIS TAKES A LOT OF TIME - because it does requests to the API
+		'''
 		user_dataset["project_preference_info"]["project_popularity_stats"] = {"forks": list_stats([pp.project_popularity_stats(dataFolderPath,user_name)["forks_count"]],["forks"])["forks"].to_dict(),\
 		"stargazers":list_stats([pp.project_popularity_stats(dataFolderPath,user_name)["stargazers_count"]],["stargazers"])["stargazers"].to_dict(),\
 		"watchers":list_stats([pp.project_popularity_stats(dataFolderPath,user_name)["watchers_count"]],["watchers"])["watchers"].to_dict()}
@@ -199,11 +206,20 @@ def create_dataset(user_address):
 		"contributors":list_stats([pp.project_scale_stats(dataFolderPath,user_name, GitHubAuthToken)["amount_of_contributors"]],["contributors"])["contributors"].to_dict(),\
 		"releases":list_stats([pp.project_scale_stats(dataFolderPath,user_name, GitHubAuthToken)["amount_of_releases"]],["releases"])["releases"].to_dict()}
 		lg.step_action()
-		#UNTIL HERE		
-
+		#UNTIL HERE	
+		'''
+		user_dataset["mostly_contributed_projects"]= pp.mostly_contributed_projects(GitHubAuthToken, commit_authored, issues_authored)
+		
+		# data to present in bar chart (five most recent months)
+		user_dataset["projects_per_month_long"] = activities_per_month(projects_per_day_long)[0]
+		
+		#data to present in stacked area chart 
+		user_dataset["committs_per_day_long"] = issue_commits_comments_freq["committs_per_day"]
+		user_dataset["issues_per_day_long"] = issue_commits_comments_freq["issues_per_day"]
+		user_dataset["comments_per_day_long"] = issue_commits_comments_freq["comments_per_day"]
+		
 		#percentages creation
-	
-		user_dataset["normalised"]["percentage_of_testing_related_files_committed_by_the_user"] = percentage_creation(user_dataset["raw_data"]["amount_of_files_related_to_testing_committed_by_user"],user_dataset["commit_committed"])
+		user_dataset["normalised"]["percentage_of_testing_related_files_committed_by_the_user"] = percentage_creation(user_dataset["raw_data"]["amount_of_files_related_to_testing_committed_by_user"],user_dataset["raw_data"]["total_files_committed"])
 		
 
 		for key in user_dataset["raw_data"]["amount_of_files_committed_per_language"].keys():
@@ -245,6 +261,7 @@ def create_dataset(user_address):
 		sys.exit(traceback.format_exc())
 	finally:
 		# This line of code is always executed even if an exception occurs
+		create_final_datasets(dataFolderPath)
 		db.finalize_write_to_disk(user_name, project)
 		print("--- %s seconds ---" % (time.time() - start_time))
 
