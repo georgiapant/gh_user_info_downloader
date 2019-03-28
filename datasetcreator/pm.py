@@ -84,9 +84,9 @@ class Project_management():
         milestones_authored_by_user = 0
        
         for issue_id in issues_authored.keys():
-            if bool(issues_authored[issue_id]["milestone"]) and issues_authored[issue_id]["milestone"]["creator"]["login"]==user_name:
-                milestones_authored_by_user = milestones_authored_by_user + 1
-            elif bool(issues_authored[issue_id]["milestone"]):
+            if bool(issues_authored[issue_id]["milestone"]):
+                if issues_authored[issue_id]["milestone"]["creator"]["login"]==user_name:
+                    milestones_authored_by_user = milestones_authored_by_user + 1
                 total_milestones = total_milestones +1
                 
         return total_milestones, milestones_authored_by_user
