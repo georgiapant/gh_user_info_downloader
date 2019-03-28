@@ -114,6 +114,23 @@ def activities_per_week(data):
 
     return per_week, list_per_week
 
+def activities_per_month(data):
+    per_month = {}
+    list_per_month = []
+    for key in data.keys():
+        date_str= datetime.strptime(key, '%Y-%m-%d')  
+        year,month = date_str.year, date_str.month
+        year_month = str(year) + "_" + str(month)
+        if year_month in per_month.keys():   
+            per_month[year_month] = per_month[year_month] + data[key]        
+        else:
+            per_month[year_month] = data[key]
+    
+    for key in per_month.keys():
+        list_per_month.append(per_month[key])
+
+    return per_month, list_per_month
+
 def percentage_creation(data, divided_by):
     try:
         percentage = (data/divided_by)*100
@@ -129,5 +146,6 @@ def histogram_creation(data, bins, range, xlabel, ylabel, title, datafolderpath)
     plt.title(title)
     plt.savefig(datafolderpath +"/"+ xlabel+".png")
     plt.clf()
+
 
 

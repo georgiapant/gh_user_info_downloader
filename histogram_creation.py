@@ -1,8 +1,9 @@
 from datamanager.filemanager import FileManager
 from analysis import histogram_creation
+from properties import dataFolderPath
 import pandas as pd
 import numpy as np
-
+import os
 '''
 Which histograms do I want to create?
 - percentage amount of testing files
@@ -56,43 +57,36 @@ Which histograms do I want to create?
 - pull merge time diff
 '''
 
-dataFolderPath = '/Users/georgia/Desktop/Thesis/DataUser/datasets'
+# dataFolderPath = '/Users/georgia/Desktop/Thesis/DataUser/datasets'
 fm = FileManager()
-stats = fm.read_stats_jsons_from_folder(dataFolderPath)
-
+stats = fm.read_stats_jsons_from_folder(os.path.join(dataFolderPath,"datasets"))
 
 #percentage histograms
 df_percentage = pd.DataFrame.from_dict({(i): stats[i]["normalised"] for i in stats.keys()}, orient='index')
 
 for column in df_percentage:
-    break
-    
     x = np.nanpercentile(df_percentage[column],98)
     range_x = (df_percentage[column].min(),x)
     histogram_creation(df_percentage[column], 20,range_x, column,"#users", column, dataFolderPath+"/histograms")
-    # print(column)
-    
 
 print("normalised done")
 #mean values histograms    
 
 df_mean = pd.DataFrame.from_dict({(j,i): stats[i]["described"][j] for i in stats.keys() for j in stats[i]["described"].keys() }, orient='columns')
-
 for column in df_mean:
-    break
+    
     data = df_mean[column[0]].transpose()["mean"]
     x = np.nanpercentile(data,98)
     range_x = (data.min(),x)
     histogram_creation(data, 20, range_x, column[0],"#users", column[0], dataFolderPath+"/histograms")
     
-
 print("described done")
 
+'''
 #to do histograms for project popularity and scale stats
 df_project = pd.DataFrame.from_dict({(k,j,i): stats[i]["project_preference_info"][k][j] for i in stats.keys() for k in stats[i]["project_preference_info"].keys() for j in stats[i]["project_preference_info"][k].keys()}, orient='index')
 
 for i in df_project.index.levels[0]:
-    break
     for j in df_project.index.levels[1]:
         try:
             
@@ -105,21 +99,18 @@ for i in df_project.index.levels[0]:
         except:
             continue
 print("project preferences done") 
+'''
 
 #histograms for time differences
 df_time_diff = pd.DataFrame.from_dict({(k,i): stats[i]["time_diff"][k]["Seconds"] for i in stats.keys() for k in stats[i]["time_diff"].keys()}, orient='index')
-
 for i in df_time_diff.index.levels[0]:
-    break
     try:
-        
         data = df_time_diff.transpose()[i].transpose()
-        x = np.nanpercentile(data["mean"],95)
+        x = np.nanpercentile(data["mean"],98)
         range_x = (data["mean"].min(),x)
-        #histogram_creation(data["mean"], 20, range_x, "mean_seconds","#users", i, dataFolderPath+"/histograms")
         histogram_creation(data["mean"], 20, range_x, i,"#users", i, dataFolderPath+"/histograms")
-
     except:
         continue
+
 print("time diff done")
 # fm.write_json_to_file(dataFolderPath + "/STATS.json", stats) 
