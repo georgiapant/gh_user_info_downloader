@@ -2,11 +2,14 @@
 # from properties import (dataFolderPath,  packageFolderPath)
 # sys.path.insert(0, packageFolderPath) 
 # # import json
-# from datamanager.filemanager import FileManager
+from datamanager.filemanager import FileManager
 from downloader.githubdownloader import GithubDownloader
 from helpers import get_number_of
 from list_of_repos_urls import List_of_repos_urls
-# from properties import (GitHubAuthToken, dataFolderPath, gitExecutablePath,verbose)
+from collections import Counter
+from properties import GitHubAuthToken
+import requests
+import json
 
 
 '''
@@ -63,3 +66,54 @@ class Project_preferences(List_of_repos_urls):
         stats["amount_of_releases"] = realeases
         return stats
 
+
+    
+
+    def mostly_contributed_projects(self,GitHubAuthToken, commit_authored, issues_authored):
+        ghd = GithubDownloader(GitHubAuthToken)
+        project_list = []
+        mostly_contributed_projects = {}
+        
+        for element_id in commit_authored.keys():
+            project = '/'.join(commit_authored[element_id]["url"].split('/')[:-2])
+            project_list.append(project)
+
+        for element_id in issues_authored.keys():
+            project = '/'.join(issues_authored[element_id]["url"].split('/')[:-2])
+            project_list.append(project)
+        
+        project_occurance = Counter(project_list).most_common(3)
+        list_url = []
+        for item in project_occurance:
+            list_url.append(item[0])
+      
+        for url in list_url:
+            mostly_contributed_projects[url] = {}
+            mostly_contributed_projects[url]["popularity_stats"] = {}
+            mostly_contributed_projects[url]["scale_stats"] = {}
+
+            r = requests.get(url)
+            content = json.loads(r.text or r.content)
+            
+            mostly_contributed_projects[url]["popularity_stats"]["watchers_count"] = content["watchers_count"]
+            mostly_contributed_projects[url]["popularity_stats"]["stargazers_count"] = content["stargazers_count"]
+            mostly_contributed_projects[url]["popularity_stats"]["forks_count"] = content["forks_count"]
+
+            mostly_contributed_projects[url]["scale_stats"]["amount_of_commits"] = get_number_of(ghd, url, "commits")
+            mostly_contributed_projects[url]["scale_stats"]["amount_of_contributors"] = get_number_of(ghd, url, "contributors")
+            mostly_contributed_projects[url]["scale_stats"]["amount_of_releases"] = get_number_of(ghd, url, "releases")
+            
+        return mostly_contributed_projects
+
+
+
+'''
+dataFolderPath  = "/Users/georgia/Desktop"
+user_name = "nbriz"
+pp = Project_preferences()
+fm = FileManager()
+commit_authored = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name +"/commit_authored", "sha")
+issues_authored = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name +"/issues_authored", "id")
+
+print(pp.mostly_contributed_projects(GitHubAuthToken, commit_authored, issues_authored))
+'''
