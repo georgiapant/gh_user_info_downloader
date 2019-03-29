@@ -76,10 +76,12 @@ class Project_preferences(List_of_repos_urls):
         
         for element_id in commit_authored.keys():
             project = '/'.join(commit_authored[element_id]["url"].split('/')[:-2])
+            
             project_list.append(project)
 
         for element_id in issues_authored.keys():
             project = '/'.join(issues_authored[element_id]["url"].split('/')[:-2])
+           
             project_list.append(project)
         
         project_occurance = Counter(project_list).most_common(3)
@@ -88,20 +90,26 @@ class Project_preferences(List_of_repos_urls):
             list_url.append(item[0])
       
         for url in list_url:
-            mostly_contributed_projects[url] = {}
-            mostly_contributed_projects[url]["popularity_stats"] = {}
-            mostly_contributed_projects[url]["scale_stats"] = {}
+            
 
             r = requests.get(url)
             content = json.loads(r.text or r.content)
             
-            mostly_contributed_projects[url]["popularity_stats"]["watchers_count"] = content["watchers_count"]
-            mostly_contributed_projects[url]["popularity_stats"]["stargazers_count"] = content["stargazers_count"]
-            mostly_contributed_projects[url]["popularity_stats"]["forks_count"] = content["forks_count"]
+            
+            try:
+                mostly_contributed_projects[url] = {}
+                mostly_contributed_projects[url]["popularity_stats"] = {}
+                mostly_contributed_projects[url]["scale_stats"] = {}
+                
+                mostly_contributed_projects[url]["popularity_stats"]["watchers_count"] = content["watchers_count"]
+                mostly_contributed_projects[url]["popularity_stats"]["stargazers_count"] = content["stargazers_count"]
+                mostly_contributed_projects[url]["popularity_stats"]["forks_count"] = content["forks_count"]
 
-            mostly_contributed_projects[url]["scale_stats"]["amount_of_commits"] = get_number_of(ghd, url, "commits")
-            mostly_contributed_projects[url]["scale_stats"]["amount_of_contributors"] = get_number_of(ghd, url, "contributors")
-            mostly_contributed_projects[url]["scale_stats"]["amount_of_releases"] = get_number_of(ghd, url, "releases")
+                mostly_contributed_projects[url]["scale_stats"]["amount_of_commits"] = get_number_of(ghd, url, "commits")
+                mostly_contributed_projects[url]["scale_stats"]["amount_of_contributors"] = get_number_of(ghd, url, "contributors")
+                mostly_contributed_projects[url]["scale_stats"]["amount_of_releases"] = get_number_of(ghd, url, "releases")
+            except KeyError:
+                continue
             
         return mostly_contributed_projects
 

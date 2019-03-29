@@ -79,6 +79,78 @@ def set_middle(data):
         score.append(profile)
     return score
 
+def set_ascending_normalised(data):
+    '''
+    Function that sets an ascending profile to the metric
+    Ascending profile means the higher the value the better
+    '''
+    score = []
+    for item in ["Good", "Medium", "Bad"]:
+        profile = {}
+        if item== "Bad":
+            low_thres = (data.min()/(np.nanpercentile(data,98)-data.min()))*100
+            high_thres = (np.nanpercentile(data,33)/(np.nanpercentile(data,98)-data.min()))*100
+        elif item =="Medium":
+            low_thres = (np.nanpercentile(data,33)/(np.nanpercentile(data,98)-data.min()))*100
+            high_thres = (np.nanpercentile(data,66)/(np.nanpercentile(data,98)-data.min()))*100
+        else:
+            low_thres = (np.nanpercentile(data,66)/(np.nanpercentile(data,98)-data.min()))*100
+            high_thres = (np.nanpercentile(data,98)/(np.nanpercentile(data,98)-data.min()))*100
+    
+        profile["Name"] = item
+        profile["Lower_threshold"] = low_thres
+        profile["Higher_threshold"] = high_thres
+        score.append(profile)
+    return score
+
+def set_descending_normalised(data):
+    '''
+    Function that sets an descending profile to the metric
+    Ascending profile means the lowner the value the better
+    '''
+    score = []
+    for item in ["Good", "Medium", "Bad"]:
+        profile = {}
+        if item== "Good":
+            low_thres = (data.min()/(np.nanpercentile(data,98)-data.min()))*100
+            high_thres = (np.nanpercentile(data,33)/(np.nanpercentile(data,98)-data.min()))*100
+        elif item =="Medium":
+            low_thres = (np.nanpercentile(data,33)/(np.nanpercentile(data,98)-data.min()))*100
+            high_thres = (np.nanpercentile(data,66)/(np.nanpercentile(data,98)-data.min()))*100
+        else:
+            low_thres = (np.nanpercentile(data,66)/(np.nanpercentile(data,98)-data.min()))*100
+            high_thres = (np.nanpercentile(data,98)/(np.nanpercentile(data,98)-data.min()))*100
+    
+        profile["Name"] = item
+        profile["Lower_threshold"] = low_thres
+        profile["Higher_threshold"] = high_thres
+        score.append(profile)
+    return score
+
+def set_middle_normalised(data):
+    '''
+    Function that sets an middle peak profile to the metric
+    Ascending profile means the more medium the value the better
+    '''
+    score = []
+    for item in ["good", "bad_low", "bad_high"]:
+        profile = {}
+        if item== "bad_low":
+            low_thres = (data.min()/(np.nanpercentile(data,98)-data.min()))*100
+            high_thres = (np.nanpercentile(data,33)/(np.nanpercentile(data,98)-data.min()))*100
+        elif item =="good":
+            low_thres = (np.nanpercentile(data,33)/(np.nanpercentile(data,98)-data.min()))*100
+            high_thres = (np.nanpercentile(data,66)/(np.nanpercentile(data,98)-data.min()))*100
+        else:
+            low_thres = (np.nanpercentile(data,66)/(np.nanpercentile(data,98)-data.min()))*100
+            high_thres = (np.nanpercentile(data,98)/(np.nanpercentile(data,98)-data.min()))*100
+    
+        profile["Name"] = item
+        profile["Lower_threshold"] = low_thres
+        profile["Higher_threshold"] = high_thres
+        score.append(profile)
+    return score
+
 def create_model(dataFolderPath):
     stats = fm.read_stats_jsons_from_folder(os.path.join(dataFolderPath,"datasets"))
     model = fm.read_json_from_file(os.path.join(dataFolderPath,"datasets","model","model_profiles.json"))
@@ -91,13 +163,17 @@ def create_model(dataFolderPath):
             if i["Name"] == column:
                 if i["Profile"]== "Ascending":
                     score = set_ascending(df_percentage[column])
+                    score_normalised = set_ascending_normalised(df_percentage[column])
                 elif i["Profile"] =="Descending":
                     score = set_descending(df_percentage[column])
+                    score_normalised = set_descending_normalised(df_percentage[column])
                 elif i["Profile"]  == "Middle":
                     score = set_middle(df_percentage[column])
+                    score_normalised = set_middle_normalised(df_percentage[column])
                 else:
                     continue
                 i["Score_instructions"] = score
+                i["Score_instructions_normalised"] = score_normalised
                 i["Score_min"] = df_percentage[column].min()
                 i["Score_max"] = np.nanpercentile(df_percentage[column],98) 
                 break
@@ -112,13 +188,17 @@ def create_model(dataFolderPath):
                 # print("yoo")
                 if i["Profile"]== "Ascending":
                     score = set_ascending(data)
+                    score_normalised = set_ascending_normalised(data)
                 elif i["Profile"] =="Descending":
                     score = set_descending(data)
+                    score_normalised = set_descending_normalised(data)
                 elif i["Profile"]  == "Middle":
                     score = set_middle(data)
+                    score_normalised = set_middle_normalised(data)
                 else:
                     continue
                 i["Score_instructions"] = score
+                i["Score_instructions_normalised"] = score_normalised
                 i["Score_min"] = data.min()
                 i["Score_max"] = np.nanpercentile(data,98) 
                 break
@@ -159,13 +239,17 @@ def create_model(dataFolderPath):
                 if item["Name"] == i:
                     if item["Profile"]== "Ascending":
                         score = set_ascending(data["mean"])
+                        score_normalised = set_ascending_normalised(data["mean"])
                     elif item["Profile"] =="Descending":
                         score = set_descending(data["mean"])
+                        score_normalised = set_descending_normalised(data["mean"])
                     elif i["Profile"]  == "Middle":
                         score = set_middle(data["mean"])
+                        score_normalised = set_middle_normalised(data["mean"])
                     else:
                         continue
                     item["Score_instructions"] = score
+                    item["Score_instructions_normalised"] = score_normalised
                     item["Score_min"] = data["mean"].min()
                     item["Score_max"] = np.nanpercentile(data["mean"],98)
                     break
@@ -175,5 +259,5 @@ def create_model(dataFolderPath):
     return model
 
 model = create_model(dataFolderPath)
-fm.write_json_to_file(os.path.join(dataFolderPath,"datasets","model","model.json"), model)
+fm.write_json_to_file(os.path.join(dataFolderPath,"datasets","model","model_normalised.json"), model)
 
