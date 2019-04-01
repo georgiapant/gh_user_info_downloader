@@ -10,27 +10,34 @@ import os
 def set_score(score_instructions, value):
     highest_threshold = -1
     lowest_threshold = float('inf')
-
+    
     for item in score_instructions:
         
-        if math.isnan(value):
+        if item["Name"]=='No categories':
             score = "Undefined"
             break
-        elif value <= item["Higher_threshold"] and value >= item["Lower_threshold"]:
-            score = item["Name"]
-            break
         else:
-            #To cover the posibility of the value being higher than the highest threshold or lower than the lowest
-            if item["Higher_threshold"]> highest_threshold:
-                highest_threshold = item["Higher_threshold"]
-                if value > highest_threshold:
-                    score = item["Name"]
+            if math.isnan(value):
+                score = "Undefined"
+                break
+            
+            elif value <= item["Higher_threshold"] and value > item["Lower_threshold"]:
+                score = item["Name"]
+                break
+            else:
+                #To cover the posibility of the value being higher than the highest threshold or lower than the lowest
+                if item["Higher_threshold"]> highest_threshold:
+                    highest_threshold = item["Higher_threshold"]                    
+                    if value > highest_threshold:
+                        score = item["Name"]
 
-            if item["Lower_threshold"]< lowest_threshold:
-                lowest_threshold = item["Lower_threshold"]
-                if value < lowest_threshold:
-                    score = item["Name"]
+                if item["Lower_threshold"]< lowest_threshold:
+                    lowest_threshold = item["Lower_threshold"]
+                    if value < lowest_threshold:
+                        score = item["Name"]
+                        
             continue              
+ 
     return score
 
 def create_final_datasets(dataFolderPath):
@@ -55,7 +62,7 @@ def create_final_datasets(dataFolderPath):
     
     for user in stats.keys():
         user_dataset = {}
-        user_dataset["name"] = user
+        user_dataset["name"] = user.split('_')[::-1][1]
         user_dataset["metrics_classified"]=[]
         user_dataset["metrics_unclassified"] = []
         user_dataset["performance_scores"] = {}
@@ -75,7 +82,7 @@ def create_final_datasets(dataFolderPath):
                         if metric["Value"]>item["Score_max"]:
                             metric["Value_normalised"] = 100 #to include the possibility of the current value being outside of the upper limit of the initial benchamarking dataset
                         else:
-                            metric["Value_normalised"]= (stats[user][key]/(item["Score_max"]-item["Score_min"]))*100
+                            metric["Value_normalised"]= ((stats[user][key]-item["Score_min"])/(item["Score_max"]-item["Score_min"]))*100
                         metric["Score"] = set_score(item["Score_instructions"],metric["Value"])
                         metric["Profile"] = item["Profile"]
                         user_dataset["metrics_classified"].append(metric)
@@ -94,7 +101,10 @@ def create_final_datasets(dataFolderPath):
                         if metric["Value"]>item["Score_max"]:
                             metric["Value_normalised"] = 100 #to include the possibility of the current value being outside of the upper limit of the initial benchamarking dataset
                         else:
-                            metric["Value_normalised"] = (stats[user]["normalised"][key]/(item["Score_max"]-item["Score_min"]))*100
+                            try:
+                                metric["Value_normalised"] = ((stats[user]["normalised"][key]-item["Score_min"])/(item["Score_max"]-item["Score_min"]))*100
+                            except:
+                                metric["Value_normalised"] =  float('nan')
                         metric["Score"] = set_score(item["Score_instructions"],metric["Value"])
                         metric["Profile"] = item["Profile"]
                         user_dataset["metrics_classified"].append(metric)
@@ -112,7 +122,7 @@ def create_final_datasets(dataFolderPath):
                         if metric["Value"]>item["Score_max"]: #to include the possibility of the current value being outside of the upper limit of the initial benchamarking dataset 
                             metric["Value_normalised"] = 100
                         else:
-                            metric["Value_normalised"]= (stats[user]["described"][key]["mean"]/(item["Score_max"]-item["Score_min"]))*100
+                            metric["Value_normalised"]= ((stats[user]["described"][key]["mean"]-item["Score_min"])/(item["Score_max"]-item["Score_min"]))*100
                         metric["Score"] = set_score(item["Score_instructions"],metric["Value"])
                         metric["Profile"] = item["Profile"]
                         user_dataset["metrics_classified"].append(metric)
@@ -128,7 +138,7 @@ def create_final_datasets(dataFolderPath):
                         if metric["Value"]>item["Score_max"]:
                             metric["Value_normalised"] = 100 #to include the possibility of the current value being outside of the upper limit of the initial benchamarking dataset
                         else:
-                            metric["Value_normalised"]= (stats[user]["time_diff"][key]["Seconds"]["mean"]/(item["Score_max"]-item["Score_min"]))*100
+                            metric["Value_normalised"]= ((stats[user]["time_diff"][key]["Seconds"]["mean"]-item["Score_min"])/(item["Score_max"]-item["Score_min"]))*100
                     except:
                         metric["Value"] = float('nan')
 
@@ -152,7 +162,7 @@ def create_final_datasets(dataFolderPath):
                         if metric["Value"]>item["Score_max"]:
                             metric["Value_normalised"] = 100 #to include the possibility of the current value being outside of the upper limit of the initial benchamarking dataset
                         else:
-                            metric["Value_normalised"]= (stats[user]["raw_data"][key]/(item["Score_max"]-item["Score_min"]))*100
+                            metric["Value_normalised"]= ((stats[user]["raw_data"][key]-item["Score_min"])/(item["Score_max"]-item["Score_min"]))*100
                         metric["Score"] = set_score(item["Score_instructions"],metric["Value"])
                         metric["Profile"] = item["Profile"]
                         user_dataset["metrics_classified"].append(metric)
@@ -179,9 +189,7 @@ def create_final_datasets(dataFolderPath):
                         user_dataset["performance_scores"][item["Category"]] = (user_dataset["performance_scores"][item["Category"]]+ score_initial)/2
                     except:    #initialise the category 
                         user_dataset["performance_scores"][item["Category"]] = score_initial
-
         
-                
         
         fm.write_json_to_file(os.path.join(dataFolderPath,"datasets","final_datasets", str(user)+ "_final_dataset.json"), user_dataset)
         
