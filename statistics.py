@@ -93,14 +93,14 @@ def create_dataset(user_address):
 			user_dataset[key] = user_stats_initial[key]
 		
 		closed_bugs_count, closed_issues_count, list_bugs_per_day, bugs_per_day_long = testing.closed_issues(user_name, issues_authored, issues_assigned, issues_commented, issues_mentions, issues_owned)
-		bugs_per_week = activities_per_week(bugs_per_day_long)[1]
+		bugs_per_month = activities_per_month(bugs_per_day_long)[1]
 
 		user_dataset["raw_data"]["amount_of_issues_closed_by_user_with_bug_keyword"] = closed_bugs_count
 		user_dataset["raw_data"]["total_amount_of_issues_closed_by_user"] = closed_issues_count
 	
 	
 		open_bugs_count, list_bugs_opened_per_day, bugs_opened_per_day = testing.opened_bugs(user_name,issues_authored)
-		bugs_opened_per_week = activities_per_week(bugs_opened_per_day)[1]
+		bugs_opened_per_month = activities_per_month(bugs_opened_per_day)[1]
 
 		user_dataset["raw_data"]["amount_of_issues_created_by_the_user_with_bug_keyword"] = open_bugs_count
 		
@@ -108,14 +108,20 @@ def create_dataset(user_address):
 		activities_freq, issue_commits_comments_freq  = productivity.issue_commits_activities_freq(user_name, commit_committed, commit_authored, issues_authored, issue_comments, commit_authored_comments)[1:3]
 		lg.step_action()
 		
-		list_count_commits_freq = activities_per_week(issue_commits_comments_freq["committs_per_day"])[1]
-		list_count_issues_freq = activities_per_week(issue_commits_comments_freq["issues_per_day"])[1]
-		list_count_comments_freq = activities_per_week(issue_commits_comments_freq["comments_per_day"])[1]
-		list_count_activities_freq = activities_per_week(activities_freq)[1]
+		commits_per_month_long, list_count_commits_freq = activities_per_month(issue_commits_comments_freq["committs_per_day"]) #[1]
+		issues_per_month_long, list_count_issues_freq = activities_per_month(issue_commits_comments_freq["issues_per_day"]) #[1]
+		comments_per_month_long, list_count_comments_freq = activities_per_month(issue_commits_comments_freq["comments_per_day"])#[1]
+		activities_per_month_long, list_count_activities_freq = activities_per_month(activities_freq)#[1]
+
+		user_dataset["commits_per_month_long"] = commits_per_month_long
+		user_dataset["issues_per_month_long"] = issues_per_month_long
+		user_dataset["comments_per_month_long"] = comments_per_month_long
+		user_dataset["activities_per_month_long"] = activities_per_month_long
 
 		projects_per_day, projects_per_day_long = productivity.projects_per_day(commit_authored, issues_authored)[1:3]
 		lg.step_action()
 		projects_per_week = activities_per_week(projects_per_day_long)[1]
+		projects_per_month = activities_per_month(projects_per_day_long)[1]
 
 		comment_length = cm.comment_length(user_name, issue_comments, commit_authored_comments)
 		lg.step_action()
@@ -124,23 +130,24 @@ def create_dataset(user_address):
 		amount_of_files_changed_in_a_commit = commits.files_in_commits(commit_authored)
 		lg.step_action()
 
-		total_list.extend((list_count_commits_freq,list_count_issues_freq, list_count_comments_freq, list_count_activities_freq, projects_per_day, projects_per_week, comment_length, number_of_comment_answers, amount_of_files_changed_in_a_commit, list_bugs_per_day, bugs_per_week, list_bugs_opened_per_day, bugs_opened_per_week))
-		names = ['commits_frequency_per_week', 'issues_frequency_per_week','comments_frequency_per_week', 'activities_frequency_per_week' ,'projects_per_day', "projects_per_week",'comment_length', 'number_of_comment_answers','amount_of_files_changed_in_a_commit', 'bugs_resolved_per_day', 'bugs_resolved_per_week', 'bugs_opened_per_day', 'bugs_opened_per_week']
+		total_list.extend((list_count_commits_freq,list_count_issues_freq, list_count_comments_freq, list_count_activities_freq, projects_per_day, projects_per_week, projects_per_month, comment_length, number_of_comment_answers, amount_of_files_changed_in_a_commit, list_bugs_per_day, bugs_per_month, list_bugs_opened_per_day, bugs_opened_per_month))
+		names = ['commits_frequency_per_month', 'issues_frequency_per_month','comments_frequency_per_month', 'activities_frequency_per_month' ,'projects_per_day', "projects_per_week","projects_per_month",'comment_length', 'number_of_comment_answers','amount_of_files_changed_in_a_commit', 'bugs_resolved_per_day', 'bugs_resolved_per_month', 'bugs_opened_per_day', 'bugs_opened_per_month']
 		out = list_stats(total_list, names)
 
-		user_dataset["described"]["commits_frequency_per_week"] = out['commits_frequency_per_week'].to_dict()
-		user_dataset["described"]["issues_frequency_per_week"] = out['issues_frequency_per_week'].to_dict()
-		user_dataset["described"]["comments_frequency_per_week"] = out['comments_frequency_per_week'].to_dict()
-		user_dataset["described"]["activities_frequency_per_week"] = out['activities_frequency_per_week'].to_dict()
+		user_dataset["described"]["commits_frequency_per_month"] = out['commits_frequency_per_month'].to_dict()
+		user_dataset["described"]["issues_frequency_per_month"] = out['issues_frequency_per_month'].to_dict()
+		user_dataset["described"]["comments_frequency_per_month"] = out['comments_frequency_per_month'].to_dict()
+		user_dataset["described"]["activities_frequency_per_month"] = out['activities_frequency_per_month'].to_dict()
 		user_dataset["described"]["projects_per_day"] = out['projects_per_day'].to_dict()
 		user_dataset["described"]["projects_per_week"] = out['projects_per_week'].to_dict()
+		user_dataset["described"]["projects_per_month"] = out['projects_per_month'].to_dict()
 		user_dataset["described"]["comment_length"] = out['comment_length'].to_dict()
 		user_dataset["described"]["number_of_comment_answers"] = out['number_of_comment_answers'].to_dict()
 		user_dataset["described"]["amount_of_files_changed_in_a_commit"] = out['amount_of_files_changed_in_a_commit'].to_dict()
 		user_dataset["described"]["bugs_resolved_per_day"] = out["bugs_resolved_per_day"].to_dict()
-		user_dataset["described"]['bugs_resolved_per_week'] = out['bugs_resolved_per_week'].to_dict()
+		user_dataset["described"]['bugs_resolved_per_month'] = out['bugs_resolved_per_month'].to_dict()
 		user_dataset["described"]["bugs_opened_per_day"] = out["bugs_opened_per_day"].to_dict()
-		user_dataset["described"]['bugs_opened_per_week'] = out['bugs_opened_per_week'].to_dict()
+		user_dataset["described"]['bugs_opened_per_month'] = out['bugs_opened_per_month'].to_dict()
 
 		user_dataset["raw_data"]["amount_of_activities_done_per_day_of_the_week"] = productivity.contribution_days(activities_freq)
 		lg.step_action()

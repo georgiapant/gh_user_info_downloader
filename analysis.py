@@ -1,5 +1,6 @@
 import pandas as pd
 from datetime import datetime, timedelta, date
+from dateutil import relativedelta
 import time
 import numpy as np
 import matplotlib.pyplot as plt
@@ -99,32 +100,61 @@ def activities_per_week(data):
     Data should be a dictionary of date,activity - key, value pairs
     '''
     per_week = {}
-    list_per_week = []
+    # list_per_week = []
+    list_dates = []
+    
     for key in data.keys():
-        date_str= datetime.strptime(key, '%Y-%m-%d')        
+        date_str= datetime.strptime(key, '%Y-%m-%d')
+        list_dates.append(date_str)
         year,week= datetime.date(date_str).isocalendar()[:2]
         year_week = str(year) + "_" + str(week)
         if year_week in per_week.keys():   
             per_week[year_week] = per_week[year_week] + data[key]        
         else:
             per_week[year_week] = data[key]
+
+   
+    if list_dates:
+        min_date = min(list_dates)
+        max_date = max(list_dates)
+
+        difference_weeks = ((max_date - min_date).days)//7
+        list_per_week = [0] * (difference_weeks- len(per_week))
+    else:
+        list_per_week = []
     
-    for key in per_week.keys():
+    for key in per_week.keys(): 
         list_per_week.append(per_week[key])
+    # print(list_per_week)
 
     return per_week, list_per_week
+
+
 
 def activities_per_month(data):
     per_month = {}
     list_per_month = []
+    list_dates = []
     for key in data.keys():
-        date_str= datetime.strptime(key, '%Y-%m-%d')  
+        date_str= datetime.strptime(key, '%Y-%m-%d')
+        list_dates.append(date_str)  
         year,month = date_str.year, date_str.month
         year_month = str(year) + "_" + str(month)
         if year_month in per_month.keys():   
             per_month[year_month] = per_month[year_month] + data[key]        
         else:
             per_month[year_month] = data[key]
+    
+    if list_dates:
+        min_date = min(list_dates)
+        max_date = max(list_dates)
+        r = relativedelta.relativedelta(max_date, min_date)
+        difference_months = r.years*12 + r.months
+        # r.months
+        
+        list_per_month = [0] * (difference_months - len(per_month))
+    else:
+        list_per_month = []
     
     for key in per_month.keys():
         list_per_month.append(per_month[key])
@@ -138,8 +168,8 @@ def percentage_creation(data, divided_by):
         percentage = np.nan
     return percentage
 
-def histogram_creation(data, bins, range, xlabel, ylabel, title, datafolderpath):
-    plt.hist(data, bins, range, facecolor='#274e13', rwidth=0.9)
+def histogram_creation(data, bins, xlabel, ylabel, title, datafolderpath):
+    plt.hist(data, bins, facecolor='#274e13', rwidth=0.9)
     plt.grid(axis='y', alpha=0.5)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
@@ -147,5 +177,12 @@ def histogram_creation(data, bins, range, xlabel, ylabel, title, datafolderpath)
     plt.savefig(datafolderpath +"/"+ xlabel+".png")
     plt.clf()
 
-
+def histogram_creation_old(data, bins, range, xlabel, ylabel, title, datafolderpath):
+    plt.hist(data, bins, range, facecolor='#274e13', rwidth=0.9)
+    plt.grid(axis='y', alpha=0.5)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.savefig(datafolderpath +"/"+ xlabel+".png")
+    plt.clf()
 

@@ -61,24 +61,37 @@ Which histograms do I want to create?
 fm = FileManager()
 stats = fm.read_stats_jsons_from_folder(os.path.join(dataFolderPath,"datasets"))
 
+def remove_outliers(data, percentile):
+    new_data = []
+    limit = np.nanpercentile(data,percentile)
+
+    for item in data:
+        if item <= limit:
+            new_data.append(item)
+    
+    return new_data
+
 #percentage histograms
 df_percentage = pd.DataFrame.from_dict({(i): stats[i]["normalised"] for i in stats.keys()}, orient='index')
 
 for column in df_percentage:
-    x = np.nanpercentile(df_percentage[column],98)
-    range_x = (df_percentage[column].min(),x)
-    histogram_creation(df_percentage[column], 20,range_x, column,"#users", column, dataFolderPath+"/histograms")
+    data = remove_outliers(df_percentage[column],98)
+    # x = np.nanpercentile(df_percentage[column],98)
+    # range_x = (df_percentage[column].min(),x)
+    histogram_creation(df_percentage[column], 20, column,"#users", column, dataFolderPath+"/histograms")
 
 print("normalised done")
 #mean values histograms    
 
 df_mean = pd.DataFrame.from_dict({(j,i): stats[i]["described"][j] for i in stats.keys() for j in stats[i]["described"].keys() }, orient='columns')
+
 for column in df_mean:
     
-    data = df_mean[column[0]].transpose()["mean"]
-    x = np.nanpercentile(data,98)
-    range_x = (data.min(),x)
-    histogram_creation(data, 20, range_x, column[0],"#users", column[0], dataFolderPath+"/histograms")
+    data_init = df_mean[column[0]].transpose()["mean"]
+    data = remove_outliers(data_init,98)
+    # x = np.nanpercentile(data,98)
+    # range_x = (data.min(),x)
+    histogram_creation(data, 20,  column[0],"#users", column[0], dataFolderPath+"/histograms")
     
 print("described done")
 
@@ -105,10 +118,12 @@ print("project preferences done")
 df_time_diff = pd.DataFrame.from_dict({(k,i): stats[i]["time_diff"][k]["Seconds"] for i in stats.keys() for k in stats[i]["time_diff"].keys()}, orient='index')
 for i in df_time_diff.index.levels[0]:
     try:
-        data = df_time_diff.transpose()[i].transpose()
-        x = np.nanpercentile(data["mean"],98)
-        range_x = (data["mean"].min(),x)
-        histogram_creation(data["mean"], 20, range_x, i,"#users", i, dataFolderPath+"/histograms")
+        data_init = list(df_time_diff.transpose()[i].transpose()["mean"])
+        data = remove_outliers(data_init,98)
+        # data = df_time_diff.transpose()[i].transpose()
+        # x = np.nanpercentile(data["mean"],98)
+        # range_x = (data["mean"].min(),x)
+        histogram_creation(data, 20, i,"#users", i, dataFolderPath+"/histograms")
     except:
         continue
 

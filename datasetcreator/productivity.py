@@ -51,7 +51,6 @@ class Productivity(FileManager,GithubDownloader):
         commit_ids = []
         
         comments_by_user = cm.user_comments(user_name, issue_comments, commit_authored_comments)[1]
-
         for element_id in commit_authored.keys():
             commit_ids.append(element_id)
             date_str = commit_authored[element_id]["commit"]["author"]["date"]
@@ -418,4 +417,17 @@ class Productivity(FileManager,GithubDownloader):
 
         return  projects_per_day, count, projects_per_day_short
 
-        
+# from analysis import activities_per_week, activities_per_month
+# dataFolderPath  = "/Users/georgia/Desktop"
+# user_name = "nbriz"
+
+# fm = FileManager()
+# productivity = Productivity(GitHubAuthToken)
+# commit_authored = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name +"/commit_authored", "sha")
+# issues_authored = fm.read_jsons_from_folder(dataFolderPath + "/" + user_name +"/issues_authored", "id")
+
+# # projects_per_day, projects_per_day_long = productivity.projects_per_day(commit_authored, issues_authored)[1:3]
+# print(productivity.projects_per_day(commit_authored, issues_authored))	
+# # projects_per_week = activities_per_week(projects_per_day_long)
+# # projects_per_month = activities_per_month(projects_per_day_long)[0]
+# # print(projects_per_month)
