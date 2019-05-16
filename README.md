@@ -33,7 +33,7 @@
 
 ## datasetcreator folder
 
-This folder contains functions that can download raw data about the user. The different data that can be dowloaded are:
+This folder contains functions that can create raw data about the user. The different data that can be created are:
 - about the activeness of the user
     * The time the user is active in years, months, days.
 - About the communication skills of the user
@@ -63,3 +63,12 @@ This folder contains functions that can download raw data about the user. The di
 - Project preference
     * Project popularity stats (amount of subscribers, stargazers and forks of the repo)
     * Project scale stats (amount of committs, releases and contributors of the repo)
+
+##model creation
+
+- In order to create the final model there should be manually assigned categories and profile to the metrics. This can be done by running the function profile_&_category_assignment. 
+- After run the model.py and the model will be created. It will include for all classified metrics score instructions both normalised and the initial ones. 
+
+##final dataset
+
+- To create the final dataset just run the statistics.py followed by either the github link for the user you want to create the dataset about or the .txt with the list of users. 
