@@ -93,14 +93,17 @@ def create_dataset(user_address):
 			user_dataset[key] = user_stats_initial[key]
 		
 		closed_bugs_count, closed_issues_count, list_bugs_per_day, bugs_per_day_long = testing.closed_issues(user_name, issues_authored, issues_assigned, issues_commented, issues_mentions, issues_owned)
-		bugs_per_month = activities_per_month(bugs_per_day_long)[1]
+		bugs_closed_per_month_long, bugs_per_month = activities_per_month(bugs_per_day_long)
+		user_dataset["bugs_closed_per_month_long"] = bugs_closed_per_month_long
 
 		user_dataset["raw_data"]["amount_of_issues_closed_by_user_with_bug_keyword"] = closed_bugs_count
 		user_dataset["raw_data"]["total_amount_of_issues_closed_by_user"] = closed_issues_count
+		
 	
 	
 		open_bugs_count, list_bugs_opened_per_day, bugs_opened_per_day = testing.opened_bugs(user_name,issues_authored)
-		bugs_opened_per_month = activities_per_month(bugs_opened_per_day)[1]
+		bugs_opened_per_month_long, bugs_opened_per_month = activities_per_month(bugs_opened_per_day)
+		user_dataset["bugs_opened_per_month_long"] = bugs_opened_per_month_long
 
 		user_dataset["raw_data"]["amount_of_issues_created_by_the_user_with_bug_keyword"] = open_bugs_count
 		

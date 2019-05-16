@@ -262,6 +262,7 @@ def create_model(dataFolderPath):
      
     #profiles for described metrics   
     df_mean = pd.DataFrame.from_dict({(j,i): stats[i]["described"][j] for i in stats.keys() for j in stats[i]["described"].keys() }, orient='columns')
+    
     for column in df_mean:    
         data_init = df_mean[column[0]].transpose()["mean"]
         
